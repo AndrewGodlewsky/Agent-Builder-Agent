@@ -1,8 +1,8 @@
 # Agent-Builder-Agent
 
-A build-ready package for creating an **"Agent Builder"** — a Copilot Studio agent that talks to a person and helps them design and produce **their own** Microsoft agent, then hands them ready-to-paste artifacts to create it.
+A build-ready package for creating an **"Agent Builder"** — a Copilot Studio agent that talks to a person and helps them design, produce, **improve, or troubleshoot** **their own** Microsoft agent, handing them ready-to-paste artifacts to create it (build) or a diagnosis + change + full revised artifact to fix it (improve/troubleshoot).
 
-The Agent Builder helps makers build **both** kinds of Microsoft agent:
+The Agent Builder is a **two-mode agent** — it routes at greet between *building a new agent* and *improving or fixing an existing one* — and works across **both** kinds of Microsoft agent:
 
 - **Microsoft 365 declarative agents** ("agents in Microsoft 365 Copilot")
 - **Copilot Studio agents** (topics, Power Automate flows, connectors, autonomous triggers, generative orchestration)
@@ -49,7 +49,7 @@ Follow the **assembly checklist** in `builder-spec/builder-agent-spec.md` (§5).
 1. **Create** a new agent in Copilot Studio; name it *Agent Builder*.
 2. **Orchestration:** set **generative**; **Allow ungrounded responses = ON**.
 3. **Instructions:** paste the instruction body from the spec (§3).
-4. **Knowledge:** upload the four knowledge files (§4) — the base skeleton, the archetype library, the artifact-formats research, and the platform + quality research — or place them in a SharePoint library and point the agent there.
+4. **Knowledge:** upload the five knowledge files (§4) — the base skeleton, the archetype library, the artifact-formats research, the platform + quality research, and the improve/fix diagnostics — or place them in a SharePoint library and point the agent there.
 5. **Moderation:** leave at **High**. **Conversation starters:** add the three provided.
 6. **Fallback:** edit the Fallback system topic so off-topic asks restate what the builder does.
 7. **Test** with the built-in test chat: try each starter, a vague goal, an out-of-scope ask, one declarative case and one Copilot-Studio case. Iterate to ~80–90% pass.
@@ -57,7 +57,9 @@ Follow the **assembly checklist** in `builder-spec/builder-agent-spec.md` (§5).
 
 ### What the Agent Builder does once running
 
-It runs a **goal-first, one-question-at-a-time interview**:
+It **routes at greet** between two modes:
+
+**Build a new agent** — a **goal-first, one-question-at-a-time interview**:
 
 1. Greets and calibrates (quick vs. guided).
 2. Asks what the maker wants the agent to do.
@@ -68,6 +70,8 @@ It runs a **goal-first, one-question-at-a-time interview**:
 7. **Emits ready-to-paste artifacts:**
    - **Declarative** → a valid `declarativeAgent.json` (plus `apiPlugin.json` if there are actions) and a publish checklist.
    - **Copilot Studio** → numbered click-by-click portal steps (because Copilot Studio has no clean full import).
+
+**Improve or fix an existing agent** — the maker **pastes** their agent's artifacts plus real behaviour evidence (transcripts, a `-developer on` debug card, or a Copilot Studio activity map — no live-tenant access). The builder reconstructs the AgentSpec, reproduces and **isolates the failing layer** (Moderation → Action → Orchestration → Grounding → Instructions), then returns a **diagnosis**, **one change** with a verify-signal, and a **full revised artifact**.
 
 ---
 
@@ -111,9 +115,14 @@ Project context and key decisions are also recorded in **`.claude/memory/`** (co
 
 ## Extending it (future / v2)
 
-Consciously deferred — a future wayfinder effort, not part of this one (see the map's "Deferred" section):
+### Delivered — "Builder Agent v2 — Improve & Troubleshoot"
 
-- An "help me test my agent" evaluation phase.
+The Agent Builder is no longer build-only. A wayfinder effort charted under `.scratch/builder-agent-v2/` (its `map.md`, tickets `01–07` in `issues/`, and findings under `research/`) extended it from build-only to **build + improve + troubleshoot**, and that capability now ships in the build-ready `Agent/` package: `01-instructions.md` routes at greet between building a new agent and an "improve/fix" fork, and a **fifth knowledge file** `Agent/knowledge/05-diagnostics.md` (failure taxonomy, per-surface evidence-capture playbooks, the five-layer isolation method, improvement levers) backs it. The maker pastes their agent's artifacts plus real behaviour evidence and gets back a diagnosis, a change-set, and a full revised artifact — all within the same planning-only boundary. Direct tenant / telemetry access remains explicitly out of scope.
+
+### Still deferred
+
+Consciously deferred — not part of either effort (see the map's "Deferred" section):
+
 - Governance, security, and publishing guidance baked into the builder.
 - Multi-language / localization.
 - Richer knowledge-source / connector discovery during the interview.

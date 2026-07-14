@@ -2,7 +2,7 @@
 
 This folder is a **self-contained package**: everything you need to create the **Agent Builder** in Microsoft Copilot Studio is here, in paste-ready form. Work top to bottom.
 
-The Agent Builder is a Copilot Studio agent that interviews a person and hands them ready-to-paste artifacts to create their own Microsoft 365 declarative agent or Copilot Studio agent.
+The Agent Builder is a Copilot Studio agent that helps a person **build, improve, or troubleshoot** a Microsoft 365 declarative agent or Copilot Studio agent — interviewing them and handing back ready-to-paste artifacts (for building) or a diagnosis + change + full revised artifact (for improving/fixing).
 
 ## Files in this folder
 
@@ -11,11 +11,12 @@ Agent/
 ├─ README.md                     ← you are here (the build guide)
 ├─ 00-agent-settings.md          Name, description, settings, starters, knowledge list
 ├─ 01-instructions.md            The instruction body to paste into the agent
-└─ knowledge/                    The 4 files to upload as the agent's knowledge
+└─ knowledge/                    The 5 files to upload as the agent's knowledge
    ├─ 01-agentspec-skeleton.md   The AgentSpec structure + question→field mapping
    ├─ 02-archetype-library.md    6 starter archetypes
    ├─ 03-artifact-formats.md     Exact output formats per surface
-   └─ 04-platforms-and-quality.md Platform delta rule + agent-quality best practices
+   ├─ 04-platforms-and-quality.md Platform delta rule + agent-quality best practices
+   └─ 05-diagnostics.md          Improve/fix reference: failure taxonomy, evidence capture, layer-isolation, levers
 ```
 
 ## Prerequisites
@@ -31,7 +32,7 @@ Agent/
 
 3. **Paste the instructions.** Open the **Instructions** field on the Overview page and paste the entire body from [`01-instructions.md`](01-instructions.md) (everything below its divider line).
 
-4. **Add the knowledge.** Go to **Knowledge → Add knowledge → Upload files** and upload all four files from [`knowledge/`](knowledge/). *(Alternatively, drop them in a SharePoint document library and add that library as the knowledge source.)*
+4. **Add the knowledge.** Go to **Knowledge → Add knowledge → Upload files** and upload all five files from [`knowledge/`](knowledge/). *(Alternatively, drop them in a SharePoint document library and add that library as the knowledge source.)*
 
 5. **Add conversation starters.** On the Overview page, add the three suggested prompts listed in [`00-agent-settings.md`](00-agent-settings.md).
 
@@ -41,23 +42,22 @@ Agent/
    - each conversation starter,
    - a vague goal ("make me an AI helper"),
    - an out-of-scope ask ("write me a poem"),
-   - one simple case ("answer HR questions from our policy docs" → should end in a `declarativeAgent.json`),
-   - one advanced case ("onboard new employees by running our provisioning flow" → should end in Copilot Studio portal steps).
+   - one simple **build** case ("answer HR questions from our policy docs" → should end in a `declarativeAgent.json`),
+   - one advanced **build** case ("onboard new employees by running our provisioning flow" → should end in Copilot Studio portal steps),
+   - one **improve/fix** case ("my HR agent refuses valid questions" + paste a `declarativeAgent.json` → should ask for behaviour evidence, isolate the layer, and return a diagnosis + one change + a full revised artifact).
 
-   Confirm it asks one question at a time, derives the surface, and emits the right artifact. Iterate on the instructions until it behaves (~80–90% of test runs good).
+   Confirm it routes build vs. improve/fix, asks one question at a time, derives/reads the surface, never guesses a fix without evidence, and emits the right output. Iterate on the instructions until it behaves (~80–90% of test runs good).
 
 8. **Publish.** Use **Publish**, then add the channel(s) you want (Teams, web, etc.).
 
 ## What "done" looks like
 
-A published *Agent Builder* that a colleague can open and, in a short guided chat, walk away with either:
-- a **`declarativeAgent.json`** (plus an `apiPlugin.json` if their agent has actions) and a publish checklist, or
-- a set of **click-by-click Copilot Studio steps**,
-
-for the agent they described — without needing to know the difference between the two platforms.
+A published *Agent Builder* that a colleague can open and, in a short guided chat, either:
+- **build** an agent and walk away with a **`declarativeAgent.json`** (plus an `apiPlugin.json` if it has actions) and a publish checklist, or a set of **click-by-click Copilot Studio steps** — without needing to know the difference between the two platforms; or
+- **improve/fix** an agent they already have: paste its setup, share how it's misbehaving, and walk away with a **diagnosis**, the **one change** to make (and how to confirm it worked), and the **full revised artifact**.
 
 ## Notes
 
-- **Why no tools/flows?** The builder writes its output straight into the chat as code blocks / numbered steps, so it needs no connectors. (A future enhancement could add a flow to hand back a downloadable file.)
-- **Keeping knowledge current.** These platforms change; when Microsoft updates the manifest schema or platform limits, refresh `knowledge/03-artifact-formats.md` and `knowledge/04-platforms-and-quality.md` and re-upload.
+- **Why no tools/flows?** The builder writes its output straight into the chat as code blocks / numbered steps, so it needs no connectors. For improve/fix, the maker pastes their agent's artifacts and behaviour evidence into the chat — the builder never touches the tenant. (A future enhancement could add a flow to hand back a downloadable file.)
+- **Keeping knowledge current.** These platforms change; when Microsoft updates the manifest schema, platform limits, or the diagnostic/observability tooling, refresh `knowledge/03-artifact-formats.md`, `knowledge/04-platforms-and-quality.md`, and `knowledge/05-diagnostics.md` and re-upload.
 - **Where this came from.** The full research, templates, and decision history behind this package live in `../.scratch/builder-agent/` and the repo `../README.md`.

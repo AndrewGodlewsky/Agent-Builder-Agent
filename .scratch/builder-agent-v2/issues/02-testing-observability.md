@@ -1,0 +1,32 @@
+# 02 · Native testing / analytics / observability
+
+Type: research
+Status: resolved
+Blocked by: none
+
+## Question
+
+Determine what **Copilot Studio** and **M365 declarative agents** natively give a maker to *observe* an agent's behavior — so the diagnose→revise engine can (a) correctly interpret whatever a maker pastes and (b) tell the maker exactly how to capture the evidence it needs.
+
+Resolve, grounded in current (2026) Microsoft Learn documentation:
+
+- **Copilot Studio**: the Test pane (and what its activity/orchestration trace shows), Analytics dashboards (topic/session/engagement, escalations, CSAT, transcripts), any evaluation / test-dataset / "power of prompts" features, and what a maker can realistically **copy out and paste**.
+- **M365 declarative agents**: how a maker observes behavior (in-Copilot testing, Agent Builder test, any transcript/citation surfacing), and what evidence is capturable given the thinner tooling.
+- For each evidence type: **what signal it carries** for diagnosis (e.g., does the trace show which knowledge source was hit? whether a tool was called? why fallback fired?), how to **capture** it (click path), and its **limits**.
+- A short **"how to get me evidence"** playbook the builder can speak to a maker for each surface.
+
+Capture findings to `.scratch/builder-agent-v2/research/02-testing-observability.md` with source links; flag preview-only or recently changed features.
+
+## Answer
+
+_Full findings: `.scratch/builder-agent-v2/research/02-testing-observability.md` (grounded in 2026 Microsoft Learn; preview features flagged)._
+
+- **Fundamental asymmetry.** Copilot Studio gives a deep, exportable observability stack (live orchestration trace + historical Activity page + Analytics dashboards + CSV transcripts + automated evaluation). Declarative agents give a thin, ephemeral, mostly un-exportable surface (live preview + per-turn Developer Mode debug card). The tool must set expectations per surface.
+- **Copilot Studio activity map is the highest-signal artifact** and answers the ticket's core questions directly: a **knowledge node** shows the actual search query, sources *used* vs *searched-but-unused*; a **tool node** shows inputs/outputs/status/latency; **Show rationale** explains *why* a tool was chosen (AI-generated, may be wrong). But it is **generative-orchestration only**, hides in-topic generative steps, and has **no explicit "why fallback" field** (inferred). CoT is gated to GPT-5 Reasoning / Claude Sonnet / Opus. ([authoring-review-activity](https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-review-activity))
+- **Copiable Copilot Studio artifacts:** test-pane **Save snapshot** → `dialog.json` (detailed errors); Analytics **conversation-outcomes CSV** (Resolved/Escalated/Abandoned + escalation reason — System *unintended* = users stuck); **Download Sessions** transcript CSV (outcome, transcript, topic, channel, CSAT, comments). Transcript gotchas the interpreter must know: **512-char/response truncation**, **SharePoint answers = `REDACTED`**, and transcripts are **not written for M365 Copilot agents**. ([analytics-transcripts-studio](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-transcripts-studio), [analytics-improve-agent-effectiveness](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-improve-agent-effectiveness))
+- **Agent evaluation [PREVIEW]** is the repeatable-QA surface: test sets (≤100 cases), methods incl. **Tool use** (did it call expected tools, pass/fail), **General quality** (groundedness/relevance/completeness), Compare meaning, etc.; per-case results expose expected-vs-actual + activity map + resources used; **Export CSV**; **Compare with** for regression. Results kept 89 days; also REST/connector-drivable for CI/CD. ([analytics-agent-evaluation-intro](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro), [-overview](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-overview), [-results](https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-results))
+- **Declarative agents' one real trace = Developer Mode (`-developer on`)** in M365 Copilot Chat: a per-turn debug card with agent/conversation/request IDs, **Matched vs Selected functions**, and executed capability/action detail (search text, request endpoint/method/headers, response, latency). Decode: *no card* = knowledge/skills not needed or throttled; *no matched functions* = description/semantic-match miss; *empty execution details* = parameter-binding/OpenAPI failure (10s plugin timeout). It's **ephemeral, copy/paste-only, no history/export**. ([debugging-agents-copilot-studio](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/debugging-agents-copilot-studio))
+- **Agent Builder itself has no trace/analytics** — only a live preview chat, a **`/debug`** support blob, and support IDs (Help → Get support). Pro-code **Agents Toolkit** (F5) adds a Debug panel with a **downloadable per-capability diagnostic `.txt`** — the only real file a declarative-agent maker can attach. ([agent-builder](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/agent-builder), [debugging-agents-vscode](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/debugging-agents-vscode))
+- **Declarative agents get NO maker-facing analytics/transcripts/evaluation** as an artifact (tenant-level Copilot usage reporting is admin-scoped, not a per-agent behavioral trace). So for declarative agents the tool should always ask for the Developer Mode card (or toolkit log), captured live because it disappears.
+- **Per-surface playbooks** (in findings §E) tell the maker exactly what to click and paste for: CS design-time bug (activity map node + rationale + snapshot), CS production/"works-in-test-not-live" (outcomes CSV + knowledge/tool-use + session CSV), CS prove-a-fix (evaluation export + Compare with), and declarative (`-developer on` card / `/debug` / toolkit `.txt`).
+- **Preview/changed flags:** agent evaluation, Analytics **Sentiment** & **customer-comments summary**, and evaluation user-profiles are **preview**; historical Activity now **requires an Exchange mailbox** (M365-stored, admin-disableable); a Copilot Studio **"new experience"** has parallel Preview/Activity-trace pages — confirm which experience the maker is in.

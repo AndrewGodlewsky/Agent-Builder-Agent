@@ -4,6 +4,8 @@
 
 Inputs synthesized: base skeleton (`../templates/base-skeleton.md`), archetype library (`../templates/archetypes/library.md`), conversation design (`conversation-design.md`), and research `01` (platform delta), `02` (quality), `06` (artifact formats).
 
+> **v2 extension (2026-07-14) — now a two-mode agent.** A successor wayfinder effort ([`../../builder-agent-v2/map.md`](../../builder-agent-v2/map.md)) added an **improve/fix** mode alongside build: the maker pastes an existing agent's artifacts + real behaviour evidence, and the builder diagnoses it (five-layer isolation), then returns a diagnosis + one change + the full revised artifact. This spec still describes the build mode; the improve/fix mode is specified in [`../../builder-agent-v2/builder-spec/diagnose-revise-design.md`](../../builder-agent-v2/builder-spec/diagnose-revise-design.md) and a **5th knowledge file** (`knowledge/05-diagnostics.md`) was added. The **shipped, build-ready package reflecting both modes is [`../../../Agent/`](../../../Agent/)** — treat that as canonical over the per-effort specs. Surface, orchestration, and settings below are unchanged by v2.
+
 ---
 
 ## 1. Surface decision — build on Copilot Studio (generative orchestration)
