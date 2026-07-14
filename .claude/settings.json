@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "statusMessage": "Checking if README needs updating...",
+            "command": "input=$(cat); printf '%s' \"$input\" | grep -qE '\"stop_hook_active\"[[:space:]]*:[[:space:]]*true' && exit 0; printf '%s' '{\"decision\":\"block\",\"reason\":\"Before finishing this turn, evaluate whether the work completed in this session changes anything README.md should document (project purpose, structure, setup/usage steps, available agents or deliverables, features, dependencies, or workflow). If it does, the README is now stale: dispatch a sub agent via the Agent tool whose task is to read README.md, review what changed, and update README.md so it reflects the current state of the project (smallest set of edits, keeping existing tone and structure), then finish. If no work was done or nothing the README covers changed, just stop normally without mentioning this check.\"}'"
+          }
+        ]
+      }
+    ]
+  }
+}

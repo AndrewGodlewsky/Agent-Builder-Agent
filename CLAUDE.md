@@ -1,3 +1,27 @@
+## Keeping the README Current
+
+Whenever a unit of work is completed, evaluate whether it changes anything the
+`README.md` should reflect — the project's purpose, structure, setup/usage
+steps, available agents or deliverables, features, dependencies, or workflow.
+
+**Decision:**
+- If the completed work does **not** change what the README documents, do
+  nothing and continue.
+- If it **does**, the README is now stale and must be brought back in sync.
+
+**When an update is needed, delegate it to a sub agent** (via the Agent tool)
+rather than editing the README inline. Dispatch a sub agent whose task is to:
+1. Read the current `README.md` and review what just changed.
+2. Update `README.md` so it accurately reflects the current state of the
+   project — add, revise, or remove sections as needed.
+3. Keep the existing tone and structure; make the smallest set of edits that
+   makes the README correct and complete.
+4. Report back what was changed (or that no change was warranted after closer
+   inspection).
+
+The goal: the README should always reflect the current state of the project
+after any completed work.
+
 ## Repo Memory
 
 Claude stores project knowledge in `.claude/memory/` (committed to git).
