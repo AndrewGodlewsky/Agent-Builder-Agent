@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Licensing, ceilings &amp; the structurally impossible — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">07</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Course B — SharePoint RAG</div>
+      <h1>Licensing, ceilings &amp; the structurally impossible</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>What your license unlocks, the file-size ceilings, and the queries no setting can fix</div>
+    <div><span class="k">Builds on</span><a href="0005-two-sharepoint-rag-paths.html">05 · How SharePoint RAG works</a></div>
+    <div><span class="k">Source</span>research/sharepoint-rag-optimization/03</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> You can state which file-size ceiling applies to any
+document on your site, name the two toggles that make your M365 Copilot license
+actually count, and recognize on sight the four query types no instruction can
+rescue — so you design your agent around them instead of debugging them.</p>
+
+<div class="eyebrow">The license</div>
+<h2>What M365 Copilot actually unlocks</h2>
+<p>Your tenant has a Microsoft 365 Copilot license in the same tenant as the agent.
+That is the gate for two things: <strong>tenant graph grounding with semantic
+search</strong> — retrieval rides the
+<a href="https://learn.microsoft.com/en-us/microsoftsearch/semantic-index-for-copilot">tenant
+semantic index</a> instead of plain keyword search — and a much higher file-size
+ceiling for SharePoint generative answers.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"For better search results from SharePoint and support of files up to 200 MB
+  in size, use a Microsoft 365 Copilot license in the same tenant… and turn on
+  tenant graph grounding with semantic search."
+  — <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">requirements-quotas</a></p>
+</div>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>Microsoft describes the trade as "a small increase in latency" for "greater
+  volume of context, with greater precision"
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">knowledge-add-sharepoint</a>).
+  The precision claim is Microsoft's self-assessment — no independent benchmark
+  exists. Turn it on anyway; the latency cost is the only known downside.</p>
+</div>
+
+<div class="eyebrow">The switches</div>
+<h2>Two toggles convert the license into capability</h2>
+<p>The license alone changes nothing. Two settings have to be ON:
+<strong>Enhanced search results</strong> and <strong>tenant graph grounding with
+semantic search</strong>
+(<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">knowledge-add-sharepoint</a>).</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"If you have a Microsoft 365 Copilot license… the maximum file size is 200 MB.
+  You must also turn on the Enhanced search results feature."
+  — <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">sharepoint-no-response</a></p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>With Enhanced search results left OFF — the no-license default — you are
+  capped at <strong>7 MB even though you're licensed</strong>. If large documents
+  are mysteriously ignored, check the toggle before anything else.</p>
+</div>
+
+<div class="eyebrow">The ceilings</div>
+<h2>File-size ceilings at a glance</h2>
+<p>Three numbers cover the whole space. Verified as of 2026-07 — these change
+frequently, so re-check
+<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">requirements-quotas</a>
+before relying on them.</p>
+
+<div class="tablewrap">
+  <table>
+    <tr><th>Limit</th><th>Value</th><th>Path</th></tr>
+    <tr><td>SharePoint generative answers, general files</td><td class="num">200 MB licensed / 7 MB not</td><td>Connector</td></tr>
+    <tr><td>SharePoint generative answers, PDF / PPTX / DOCX</td><td class="num">512 MB</td><td>Connector</td></tr>
+    <tr><td>File-upload knowledge, per file</td><td class="num">512 MB</td><td>Dataverse</td></tr>
+    <tr><td>SharePoint URLs per agent (generative)</td><td class="num">25</td><td>Connector</td></tr>
+    <tr><td>Results grounding each answer</td><td class="num">Top 3</td><td>Both</td></tr>
+    <tr><td>File-upload sync cadence</td><td class="num">4–6 h</td><td>Dataverse</td></tr>
+  </table>
+</div>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"SharePoint and Microsoft Copilot connectors support files up to 512 MB if
+  they have PDF, PPTX, or DOCX extensions."
+  — <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">knowledge-copilot-studio</a></p>
+</div>
+
+<h3>The silent over-ceiling failure</h3>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"Larger files can be stored in SharePoint and are returned by a Microsoft
+  Graph search, but aren't processed by generative answers. As an alternative, you
+  can upload your own files, which can be up to 512 MB in size."
+  — <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">sharepoint-no-response</a></p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>An over-ceiling file <strong>appears as a search hit but contributes nothing
+  to the answer</strong>. No error, no warning — it looks like the agent "found"
+  the document. This is worse than a hard failure because it hides in testing.
+  Audit your library for files over the ceiling; for the big ones, use the 512 MB
+  file-upload path instead.</p>
+</div>
+
+<div class="eyebrow">The impossible</div>
+<h2>Four queries no setting can fix</h2>
+<p>Some question shapes are structurally unsupported by a SharePoint knowledge
+source. No prompt, instruction, or schema change enables them — this is a property
+of how the connector retrieves, not a tuning gap.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"Queries to a SharePoint knowledge source that reference a file or document
+  name can't be answered." Folder-level metadata filtering "isn't supported" — the
+  agent can't list or count files in a folder — and "queries related to column
+  metadata filtering properties aren't supported."
+  — <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">requirements-quotas</a></p>
+</div>
+
+<div class="tablewrap">
+  <table>
+    <tr><th>Cannot be answered</th><th>Example</th></tr>
+    <tr><td>Reference a file <strong>by name</strong></td><td>"What's in <em>policy-v3.pdf</em>?"</td></tr>
+    <tr><td><strong>List</strong> files in a folder</td><td>"What documents are in the HR folder?"</td></tr>
+    <tr><td><strong>Count</strong> files</td><td>"How many files are in this library?"</td></tr>
+    <tr><td><strong>Filter by column value</strong></td><td>"List all files where Status = Approved"</td></tr>
+  </table>
+</div>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>Instructions can't steer retrieval either: Microsoft's guidance is to remove
+  any instruction that tries to influence document retrieval. Instructions govern
+  summarization <em>after</em> retrieval — so you cannot instruction your way
+  around any of the four shapes above.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>Design around, not against. If your users genuinely need "list / count /
+  filter" answers, that workload belongs in a <strong>different mechanism</strong>
+  — a Dataverse table, a Power Automate flow, or a custom tool — not in SharePoint
+  knowledge. Decide this at design time, before the first bug report teaches you.</p>
+</div>
+
+<div class="claim unconfirmed">
+  <span class="stamp stamp-unconfirmed">Unconfirmed</span>
+  <p>Open tension: the SharePoint search schema <em>can</em> make column metadata
+  queryable, yet Copilot Studio still refuses column-value filtering at the
+  knowledge-source level. Whether managed metadata helps grounding
+  <em>disambiguation</em> in any other way is unresolved — test against your
+  tenant before betting on it.</p>
+</div>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. Your tenant has an M365 Copilot license, but Enhanced search results is OFF. What's the SharePoint ceiling for generative answers?</p>
+    <div class="q-opts">
+      <button type="button">200 MB, because the license alone raises it</button>
+      <button type="button" data-correct>7 MB, because the toggle gates the ceiling</button>
+      <button type="button">512 MB, because PDFs always get that limit</button>
+    </div>
+    <div class="q-explain">The license is necessary but not sufficient — Enhanced search results must be ON, or you stay at the 7 MB no-license default despite being licensed.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">2. A 300 MB PDF sits in the connected SharePoint library. What happens when a user's question matches it?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>It appears in search hits but never grounds answers</button>
+      <button type="button">It throws a visible error message for the builder</button>
+      <button type="button">It gets chunked partially and still grounds answers anyway</button>
+    </div>
+    <div class="q-explain">Over-ceiling files are returned by Graph search but aren't processed by generative answers — a silent failure that looks like a successful retrieval.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">3. Users keep asking "How many contracts are in the Legal folder?" Can any instruction or schema change ever make the SharePoint knowledge source answer this?</p>
+    <div class="q-opts">
+      <button type="button">Yes, if you add a counting instruction</button>
+      <button type="button">Yes, if you make columns fully queryable</button>
+      <button type="button" data-correct>No, folder counting is structurally unsupported here</button>
+    </div>
+    <div class="q-explain">Folder listing and counting are structurally impossible for a SharePoint knowledge source. Instructions govern summarization after retrieval, and schema tuning can't add this capability — route the workload to Dataverse, a flow, or a custom tool.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">4. How many search results ground each generative answer from the SharePoint connector?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Top three results only</button>
+      <button type="button">Top five results only</button>
+      <button type="button">Every single matching result</button>
+    </div>
+    <div class="q-explain">Only the top 3 results ground each answer — which is why retrieval precision and deduplication matter so much (lesson 08 works those levers).</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">5. A user asks "What's the mitigation in policy-v3.pdf?" What's the correct design response?</p>
+    <div class="q-opts">
+      <button type="button">Add an instruction that maps filenames to content</button>
+      <button type="button" data-correct>Route file-name queries to a different mechanism entirely</button>
+      <button type="button">Make the file Title property queryable and retrievable</button>
+    </div>
+    <div class="q-explain">File-by-name queries can't be answered by a SharePoint knowledge source, and instructions can't steer retrieval. The fix is structural: handle that query shape elsewhere, or teach users to ask by topic instead.</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>The canonical Microsoft page for every number in this lesson — ceilings,
+  quotas, and the unsupported query types — and the page to re-check before
+  relying on any of them.
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Copilot Studio requirements and quotas</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="0006-permission-trimming.html">← Prev lesson</a>
+    <a href="0008-search-schema-playbook.html">Next lesson →</a>
+  </div>
+</nav>
+
+<script>
+// Field check quiz — instant feedback, per-quiz score, retry.
+// Markup contract: .quiz > .q > .q-opts > button[data-correct] + .q-explain
+document.querySelectorAll('.quiz').forEach(function (quiz) {
+  var questions = Array.prototype.slice.call(quiz.querySelectorAll('.q'));
+  var scoreEl = quiz.querySelector('.quiz-score .val');
+  var answered = 0;
+  var correct = 0;
+
+  quiz.addEventListener('click', function (e) {
+    var btn = e.target.closest('.q-opts button');
+    if (btn) {
+      var q = btn.closest('.q');
+      if (q.classList.contains('answered')) return;
+      q.classList.add('answered');
+      answered++;
+      var isRight = btn.hasAttribute('data-correct');
+      if (isRight) correct++;
+      btn.classList.add(isRight ? 'correct' : 'incorrect');
+      q.querySelectorAll('.q-opts button').forEach(function (b) {
+        if (b.hasAttribute('data-correct')) b.classList.add('correct');
+        b.disabled = true;
+      });
+      if (answered === questions.length) {
+        quiz.classList.add('done');
+        if (scoreEl) scoreEl.textContent = correct + ' / ' + questions.length;
+      }
+      return;
+    }
+    if (e.target.closest('.quiz-retry')) {
+      answered = 0;
+      correct = 0;
+      quiz.classList.remove('done');
+      questions.forEach(function (q) {
+        q.classList.remove('answered');
+        q.querySelectorAll('.q-opts button').forEach(function (b) {
+          b.classList.remove('correct', 'incorrect');
+          b.disabled = false;
+        });
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

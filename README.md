@@ -15,7 +15,7 @@ It's designed for a **mixed audience** — it detects whether it's talking to a 
 
 ## What's inside
 
-Everything lives under `.scratch/builder-agent/` (it was produced as a [wayfinder](#how-this-was-built) planning effort; the layout is stable and safe to depend on):
+The planning package lives under `.scratch/builder-agent/` (it was produced as a [wayfinder](#how-this-was-built) planning effort; the layout is stable and safe to depend on):
 
 ```
 .scratch/builder-agent/
@@ -38,6 +38,40 @@ The two files marked with stars are the ones you'll use most:
 - **`builder-spec/builder-agent-spec.md`** — the complete spec of the Agent Builder itself, including an assembly checklist. **Start here to build the agent.**
 - **`templates/base-skeleton.md`** — the **AgentSpec**, the reusable structure at the heart of everything.
 
+### Companion research
+
+Two separate, self-contained research sets live at the repo root under `research/`, both drawn from first-party Microsoft Learn docs:
+
+- **`research/copilot-studio-knowledge/`** — a 7-document brief on **how knowledge is used in Copilot Studio agents**, and specifically whether knowledge can or should double as instructions or examples (the short answer: no — they're architecturally distinct surfaces). It also covers retrieval/RAG mechanics, knowledge types and hard limits, and decision-oriented builder recommendations. Start at `research/copilot-studio-knowledge/00-index.md`.
+- **`research/sharepoint-rag-optimization/`** — an 8-document set on **how SharePoint search/indexing works as a knowledge source for Copilot Studio agents** (Graph, crawling, the tenant semantic index, search schema), plus a site-owner playbook for improving RAG quality: permission trimming and security, licensing and limits, a search-schema playbook, a document-optimization playbook, and retrieval API vs. built-in comparisons. Start at `research/sharepoint-rag-optimization/00-index.md`.
+
+### Learning course — the Copilot Studio Field Manual
+
+The `teach/` folder turns that research into a **self-paced course of interactive, single-file HTML lessons**, so you can make knowledge-configuration decisions for the agent without re-reading the research sets. Open any lesson directly in a browser — no server or network needed; each file is fully self-contained and works offline.
+
+```
+teach/
+├─ MISSION.md          Why the builder is learning this
+├─ NOTES.md            Teaching preferences / working notes
+├─ RESOURCES.md        Curated trusted sources (Microsoft Learn) + open research gaps
+├─ field-manual-complete.html
+│                        Complete Edition: all 11 lessons in one self-contained page, with a
+│                        table of contents and in-page navigation (reference docs stay separate)
+├─ assets/             Shared design system (course.css, quiz.js, lesson template) — inlined into
+│                        every lesson — plus build-combined.py, which regenerates the Complete
+│                        Edition from the individual lessons (run after editing any lesson)
+├─ lessons/            11 interactive lessons (0001–0011), in three courses:
+│                        A. Fundamentals (0001–0004): knowledge vs. instructions, how retrieval
+│                           works, source types & limits, builder playbook
+│                        B. SharePoint RAG (0005–0010): the two RAG paths, permission trimming,
+│                           licensing & hard limits, search schema, document optimization,
+│                           retrieval API vs. built-in
+│                        C. Capstone (0011): build-review case study
+└─ reference/          Print-friendly quick refs: glossary, limits cheatsheet, decision flowcharts
+```
+
+Each lesson ends with an interactive **"Field check" quiz** and links to its Microsoft Learn primary sources.
+
 ---
 
 ## How to use it
@@ -49,7 +83,7 @@ Follow the **assembly checklist** in `builder-spec/builder-agent-spec.md` (§5).
 1. **Create** a new agent in Copilot Studio; name it *Agent Builder*.
 2. **Orchestration:** set **generative**; **Allow ungrounded responses = ON**.
 3. **Instructions:** paste the instruction body from the spec (§3).
-4. **Knowledge:** upload the five knowledge files (§4) — the base skeleton, the archetype library, the artifact-formats research, the platform + quality research, and the improve/fix diagnostics — or place them in a SharePoint library and point the agent there.
+4. **Knowledge:** upload the five knowledge files (§4) — the base skeleton, the archetype library, the artifact-formats research, the platform + quality research, and the improve/fix diagnostics — or place them in a SharePoint library and point the agent there. (For the SharePoint path, ready-made RAG-optimized Word versions of all five files are in `Agent/knowledge/docx/`; the raw `.md` files in `Agent/knowledge/` remain the canonical source and are equally valid for direct upload. Whichever source you use, give each knowledge source a detailed Name + Description in Copilot Studio — generative orchestration routes by description; ready-to-paste Names + Descriptions for all five are in `Agent/knowledge-source-descriptions.md`.)
 5. **Moderation:** leave at **High**. **Conversation starters:** add the three provided.
 6. **Fallback:** edit the Fallback system topic so off-topic asks restate what the builder does.
 7. **Test** with the built-in test chat: try each starter, a vague goal, an out-of-scope ask, one declarative case and one Copilot-Studio case. Iterate to ~80–90% pass.

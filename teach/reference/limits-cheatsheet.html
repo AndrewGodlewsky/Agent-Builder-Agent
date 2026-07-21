@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Limits cheat-sheet — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+
+/* ---------------- Reference add-on: cheat-sheet tables ------------ */
+
+td .stamp {
+  font-size: 0.58rem;
+  padding: 0.06rem 0.32rem;
+  letter-spacing: 0.1em;
+  transform: none;
+  vertical-align: 0.05em;
+}
+td.src {
+  font-family: var(--data);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+td.src a { display: inline-block; }
+td.val { font-family: var(--data); font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+
+@media print {
+  tr { break-inside: avoid; }
+  .tablewrap { break-inside: auto; }
+  thead { display: table-header-group; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">L</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Reference</div>
+      <h1>Limits cheat-sheet</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>Every number that matters, grouped by area</div>
+    <div><span class="k">Grounded in</span>research/copilot-studio-knowledge/04+07 · sharepoint-rag-optimization/01+03</div>
+    <div><span class="k">Accurate as of</span>2026-07-21 &#183; verified 3-0 against Microsoft Learn</div>
+  </div>
+</header>
+
+<div class="gotcha">
+  <span class="gotcha-label">Before you rely on any number here</span>
+  <p><strong>Copilot Studio moves fast — re-verify against live docs before
+  relying on any number.</strong> Several cited pages carry preview /
+  "subject to change" banners. First stop:
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Requirements
+  and quotas</a>. Stamps: <span class="stamp stamp-verified">Verified</span> =
+  primary Microsoft doc, 3-0 adversarial verification;
+  <span class="stamp stamp-directional">Directional</span> = reasonable but
+  confirm in your tenant; <span class="stamp stamp-unconfirmed">Unconfirmed</span> =
+  hypothesis to test.</p>
+</div>
+
+<div class="eyebrow">Files</div>
+<h2>File-size ceilings — and what unlocks each</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Ceiling</th><th>Applies to</th><th>What unlocks it</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td class="val">7 MB</td>
+    <td>SharePoint files in generative answers</td>
+    <td>The floor — no same-tenant M365 Copilot license</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/retrieval-augmented-generation">Learn: RAG guidance</a></td>
+  </tr>
+  <tr>
+    <td class="val">200 MB</td>
+    <td>SharePoint files in generative answers</td>
+    <td>Same-tenant M365 Copilot license + tenant graph grounding with semantic search + <strong>Enhanced search results ON</strong></td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td class="val">512 MB</td>
+    <td>SharePoint &amp; Copilot connectors — <em>PDF, PPTX, DOCX extensions only</em></td>
+    <td>File extension (licensed path)</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td class="val">512 MB</td>
+    <td>Uploaded files (Dataverse path), any supported type</td>
+    <td>Nothing — the upload path's standard ceiling</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Learn: file upload</a></td>
+  </tr>
+</table>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">The silent oversize failure</span>
+  <p>Files over the ceiling <strong>still appear as SharePoint search hits</strong>
+  but <strong>aren't processed by generative answers</strong> — it looks like the
+  agent "found" the doc, yet nothing from it grounds the answer. Escape hatch: the
+  512&#8201;MB upload path.
+  (<a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> ·
+  <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">Learn: SharePoint no-response</a>)</p>
+</div>
+
+<div class="eyebrow">Retrieval</div>
+<h2>Retrieval constants</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Fact</th><th>Value</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td><strong>Results grounding each answer</strong> (per source)</td>
+    <td class="val">Top 3</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/01-how-sharepoint-rag-works.md">research 01</a> · <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">Learn: no-response</a></td>
+  </tr>
+  <tr>
+    <td>SharePoint connector freshness</td>
+    <td class="val">Real time</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/01-how-sharepoint-rag-works.md">research 01</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">Learn: unstructured data</a></td>
+  </tr>
+  <tr>
+    <td>File-upload (Dataverse) sync cadence</td>
+    <td class="val">Every 4–6 h</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/01-how-sharepoint-rag-works.md">research 01</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">Learn: unstructured data</a></td>
+  </tr>
+  <tr>
+    <td>Chunk size / chunking strategy</td>
+    <td class="val">Not published, not tunable</td>
+    <td><span class="stamp stamp-unconfirmed">Unconfirmed</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/01-how-sharepoint-rag-works.md">research 01</a> (no primary source)</td>
+  </tr>
+  <tr>
+    <td>Public-website crawl depth</td>
+    <td class="val">2 subpage levels</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Search-schema changes take effect</td>
+    <td class="val">After re-crawl</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/04-search-schema-playbook.md">research 04 (SP)</a> · <a href="https://learn.microsoft.com/en-us/sharepoint/manage-search-schema">Learn: search schema</a></td>
+  </tr>
+</table>
+</div>
+
+<div class="eyebrow">Source counts</div>
+<h2>Per-source input counts — generative vs. classic</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Source type</th><th>Generative</th><th>Classic</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td>Public website</td>
+    <td class="val">25</td>
+    <td class="val">4</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>SharePoint (connector)</td>
+    <td class="val">25 URLs</td>
+    <td class="val">4</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Dataverse</td>
+    <td class="val">Unlimited</td>
+    <td class="val">2 × 15 tables</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>Uploaded files <em>(exempt from 25-source filter)</em></td>
+    <td class="val">Unlimited attach; 500/agent</td>
+    <td class="val">—</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Learn: file upload</a></td>
+  </tr>
+  <tr>
+    <td>OneDrive / SharePoint file sync</td>
+    <td class="val">~5 items per add</td>
+    <td class="val">—</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-unstructured-data">Learn: unstructured data</a></td>
+  </tr>
+  <tr>
+    <td>Enterprise connectors (Graph / Microsoft Search)</td>
+    <td class="val">Unlimited</td>
+    <td class="val">2</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>3rd-party KBs (Confluence / Salesforce / ServiceNow / Zendesk)</td>
+    <td class="val">Collection-level</td>
+    <td class="val">—</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-unstructured-data">Learn: unstructured data</a></td>
+  </tr>
+  <tr>
+    <td>Classic-only sources</td>
+    <td class="val">n/a</td>
+    <td class="val">Azure OpenAI 5 · Bing Custom Search 2 · Custom Data 3</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>SharePoint lists</td>
+    <td class="val">Max 10; &gt;35,000 rows degrades</td>
+    <td class="val">—</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">Learn: add SharePoint</a></td>
+  </tr>
+</table>
+</div>
+
+<h3>How many sources are actually usable?</h3>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Rule</th><th>Value</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td>Generative mode filters sources beyond this count via an internal GPT model (uploaded files exempt)</td>
+    <td class="val">&gt; 25 sources</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>Sources <em>effectively usable</em> at a time before routing contention bites — consolidate or use file groups at this point</td>
+    <td class="val">~5</td>
+    <td><span class="stamp stamp-directional">Directional</span></td>
+    <td class="src"><a href="../../research/build-review/copilot-studio-agent-technical-review.md">build review</a> (practitioner finding, no Learn cite)</td>
+  </tr>
+</table>
+</div>
+
+<div class="eyebrow">Hard quotas</div>
+<h2>Agent-wide caps</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Limit</th><th>Value</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td>Knowledge sources per agent (all types combined)</td>
+    <td class="val">500</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Uploaded files per agent</td>
+    <td class="val">500</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Max size per uploaded file</td>
+    <td class="val">512 MB</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Dataverse tables per source</td>
+    <td class="val">15</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>Public-website subpage depth</td>
+    <td class="val">2</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-public-website">Learn: public website</a></td>
+  </tr>
+  <tr>
+    <td>SharePoint site URLs per agent (generative)</td>
+    <td class="val">25</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+</table>
+</div>
+
+<div class="note">
+  <span class="note-label">Ceiling, not target</span>
+  <p>500 sources / 500 files is a cap, not a goal. Top-3 grounding means volume
+  dilutes rather than deepens — curated, well-named, well-described sources win.
+  (<a href="../../research/copilot-studio-knowledge/04-knowledge-types-and-limits.md">research 04</a> §6)</p>
+</div>
+
+<div class="eyebrow">Licensing</div>
+<h2>What the M365 Copilot license gates</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Capability</th><th>Without license</th><th>With license (same tenant)</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td>SharePoint file ceiling (generative answers)</td>
+    <td class="val">7 MB</td>
+    <td class="val">200 MB</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td>PDF / PPTX / DOCX ceiling (SharePoint &amp; connectors)</td>
+    <td class="val">7 MB</td>
+    <td class="val">512 MB</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">Learn: knowledge sources</a></td>
+  </tr>
+  <tr>
+    <td>Enhanced search results toggle</td>
+    <td>Must be OFF</td>
+    <td>Must be <strong>ON</strong> — left off, you're capped at 7&#8201;MB even licensed</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">Learn: no-response</a></td>
+  </tr>
+  <tr>
+    <td>Tenant graph grounding with semantic search</td>
+    <td>n/a</td>
+    <td>Available — turn <strong>ON</strong> (small latency cost, greater precision + context)</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">Learn: add SharePoint</a></td>
+  </tr>
+  <tr>
+    <td>Restricted SharePoint Search (tenant setting)</td>
+    <td colspan="2">If ON, blocks the SharePoint connector entirely — regardless of license</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">Learn: add SharePoint</a></td>
+  </tr>
+</table>
+</div>
+
+<div class="eyebrow">File types</div>
+<h2>Supported file types by ingestion path</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Path</th><th>Accepted types</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td><strong>Upload files</strong></td>
+    <td>Word (doc/docx), Excel (xls/xlsx), PowerPoint (ppt/pptx), PDF, Text (.txt/.md/.log), HTML, CSV, XML, OpenDocument (odt/ods/odp), EPUB, RTF, iWork, JSON, YAML, LaTeX</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Learn: file upload</a></td>
+  </tr>
+  <tr>
+    <td><strong>OneDrive / SharePoint file sync</strong></td>
+    <td><strong>Only</strong> Word, PowerPoint, PDF, Excel — no .md/.txt/.csv/.html</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-unstructured-data">Learn: unstructured data</a></td>
+  </tr>
+  <tr>
+    <td><strong>SharePoint connector / website</strong></td>
+    <td>n/a — points at live sites, not uploaded files</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src"><a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a></td>
+  </tr>
+  <tr>
+    <td><strong>Retrieval API — semantic/hybrid retrieval</strong></td>
+    <td>Only .doc/.docx/.pptx/.pdf/.aspx/.one; other extensions lexical-only; table text only in .doc/.docx/.pptx; images/charts not retrievable</td>
+    <td><span class="stamp stamp-verified">Verified</span> <span class="stamp stamp-unconfirmed">Unconfirmed</span> for built-in connector</td>
+    <td class="src"><a href="../../research/sharepoint-rag-optimization/06-retrieval-api-vs-builtin.md">research 06</a> · <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/retrieval/overview">Learn: Retrieval API</a></td>
+  </tr>
+</table>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Universal file rules</span>
+  <p>Everywhere: max <strong>512&#8201;MB</strong>; <strong>no</strong>
+  image/video/audio/executable files (images only work embedded in a PDF, with
+  alt-text); <strong>no</strong> encrypted / sensitivity-labeled /
+  password-protected files — they show "ready" but return nothing.
+  (<a href="../../research/copilot-studio-knowledge/07-source-and-file-types-pros-cons.md">research 07</a> ·
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Learn: file upload</a>)</p>
+</div>
+
+<div class="eyebrow">Structurally impossible</div>
+<h2>Query types no setting can fix</h2>
+
+<div class="tablewrap">
+<table>
+  <tr><th>Cannot be answered</th><th>Example</th><th>Evidence</th><th>Sources</th></tr>
+  <tr>
+    <td>Reference a file <strong>by name</strong></td>
+    <td>"What's in <em>policy-v3.pdf</em>?"</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+    <td class="src" rowspan="4"><a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> · <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">Learn: quotas</a></td>
+  </tr>
+  <tr>
+    <td><strong>List</strong> files in a folder</td>
+    <td>"What documents are in the HR folder?"</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+  </tr>
+  <tr>
+    <td><strong>Count</strong> files</td>
+    <td>"How many files are in this library?"</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+  </tr>
+  <tr>
+    <td><strong>Filter by column value</strong></td>
+    <td>"List all files where Status = Approved"</td>
+    <td><span class="stamp stamp-verified">Verified</span></td>
+  </tr>
+</table>
+</div>
+
+<div class="note">
+  <span class="note-label">Design around, don't instruct around</span>
+  <p>Instructions can't modify retrieval, so none of these are fixable with
+  prompting. If you need them, use a Dataverse table, a Power Automate flow, or a
+  custom tool — not SharePoint knowledge.
+  (<a href="../../research/sharepoint-rag-optimization/03-licensing-and-limits.md">research 03</a> §4–5)</p>
+</div>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="glossary.html">Glossary</a>
+    <a href="decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="../lessons/0001-knowledge-vs-instructions.html">Start the course &#8594;</a>
+  </div>
+</nav>
+
+</body>
+</html>

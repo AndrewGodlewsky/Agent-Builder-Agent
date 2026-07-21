@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · The two SharePoint RAG paths — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">05</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Course B — SharePoint RAG</div>
+      <h1>The two SharePoint RAG paths</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>Path A (connector) vs. Path B (file upload) — and why every tuning decision depends on which one you chose</div>
+    <div><span class="k">Builds on</span><a href="0003-source-types-and-limits.html">03 · Knowledge source types</a></div>
+    <div><span class="k">Source</span>research/sharepoint-rag-optimization/01</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> Before touching any retrieval knob on your agent, you
+can name which of the two SharePoint RAG paths it uses — and therefore which
+levers (search schema and filters vs. file hygiene) actually apply, and why only
+the top three search results ever matter.</p>
+
+<div class="eyebrow">The core distinction</div>
+<h2>Two paths, not one</h2>
+<p>Copilot Studio grounds on SharePoint two architecturally different ways. They
+are not interchangeable, and mixing up their mechanics is the root of most wasted
+tuning effort.</p>
+<p><strong>Path A — SharePoint knowledge source (the connector).</strong> You
+point the agent at a SharePoint URL. At query time it queries SharePoint's live
+search infrastructure in real time via GraphSearch. Nothing is copied — content
+stays in SharePoint. It authenticates as the querying user's Entra ID, supports
+filters (title, author, modified by/date) and sensitivity labels, and allows up
+to 25 URLs under generative orchestration (4 in classic).</p>
+<p><strong>Path B — File upload.</strong> Files are copied into Dataverse, where
+they are chunked and vector-indexed into Copilot Studio's own semantic index.
+Retrieval matches query intent against those embeddings — and content is
+synchronized only every 4–6 hours, not in real time.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"Option 1 (file upload) searches a Dataverse semantic index built from
+  embedded vectors of the ingested content copied from SharePoint… synchronized
+  every four to six hours… Option 2 (connector) directly queries SharePoint
+  search infrastructure in real time… content resides in SharePoint."
+  — <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">knowledge-unstructured-data</a>,
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">knowledge-copilot-studio</a></p>
+</div>
+
+<div class="tablewrap">
+  <table>
+    <tr><th></th><th>Path A — Connector</th><th>Path B — File upload</th></tr>
+    <tr><td><strong>How it connects</strong></td><td>Points at a SharePoint URL; queries live via GraphSearch</td><td>Copies files into Dataverse; builds its own semantic index</td></tr>
+    <tr><td><strong>Timing</strong></td><td class="num">Real time</td><td class="num">Sync every 4–6 h</td></tr>
+    <tr><td><strong>Where content lives</strong></td><td>Stays in SharePoint</td><td>Copied into Dataverse</td></tr>
+    <tr><td><strong>Rides on</strong></td><td>Tenant semantic index (M365 Copilot)</td><td>Its own Dataverse vector index</td></tr>
+    <tr><td><strong>Your site-owner levers</strong></td><td>Search schema, search query filters, permissions</td><td>File hygiene, chunking-friendly formatting</td></tr>
+    <tr><td><strong>Best for</strong></td><td>Living libraries, permission-trimmed enterprise content</td><td>Curated, stable document sets</td></tr>
+  </table>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>You have full site-owner control and a living document library — that makes
+  <strong>Path A the natural fit</strong> for your agent: live, permission-trimmed,
+  and the path where search-schema tuning pays off. Reach for Path B when the set
+  is small, curated, and stable, and you want the 512&nbsp;MB file-upload ceiling
+  (details in lesson 07) more than freshness.</p>
+</div>
+
+<div class="eyebrow">What Path A rides on</div>
+<h2>The tenant semantic index</h2>
+<p>Because your tenant is M365 Copilot licensed, Microsoft automatically builds a
+tenant-level semantic index from text-based SharePoint Online files. Each item
+becomes a numerical vector; semantically similar items cluster together, enabling
+similarity search "beyond exact keyword matching."</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"A semantic index is created for every subscription at the tenant and user
+  level… generated from text-based SharePoint Online files… The indexing process
+  requires no administrative involvement."
+  — <a href="https://learn.microsoft.com/en-us/microsoftsearch/semantic-index-for-copilot">semantic-index-for-copilot</a></p>
+</div>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>The tenant index also includes Copilot connector data, so it is not
+  <em>exclusively</em> SharePoint-file-derived. Reasonable, but confirm against
+  your tenant.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>You cannot "build" or "rebuild" this index — it is automatic. Your lever is
+  making the <em>content</em> and the <em>search schema</em> clean enough that
+  the right vectors surface.</p>
+</div>
+
+<div class="eyebrow">How content enters the index</div>
+<h2>Crawled properties → managed properties</h2>
+<p>SharePoint indexing runs on a two-tier property model. A crawl extracts
+content and metadata from each item as <strong>crawled properties</strong>. You
+then map crawled properties to <strong>managed properties</strong> in the search
+schema — and set attributes like Searchable, Queryable, and Retrievable. Only
+managed-property content reaches the index that GraphSearch (and therefore your
+agent) queries.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"To include the content and metadata of crawled properties in the search
+  index, you map crawled properties to managed properties. The index only
+  includes content and metadata from the managed properties."
+  — <a href="https://learn.microsoft.com/en-us/sharepoint/technical-reference/crawled-and-managed-properties-overview">crawled-and-managed-properties-overview</a>,
+  <a href="https://learn.microsoft.com/en-us/sharepoint/manage-search-schema">manage-search-schema</a></p>
+</div>
+
+<p>Two consequences: metadata that isn't mapped to a managed property is
+invisible to the agent, and a new mapping only takes effect <strong>after the
+content is re-crawled</strong>.</p>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>The crawled/managed model is documented on SharePoint <em>Server</em> pages.
+  The attribute semantics carry over to SharePoint Online, but SPO manages the
+  schema per-tenant with less crawl-scheduling control — treat attribute
+  <em>meanings</em> as authoritative and crawl-<em>timing</em> mechanics as
+  directional.</p>
+</div>
+
+<div class="eyebrow">Inside the black box</div>
+<h2>Chunking and embedding — known vs. unknown</h2>
+<p>On Path B, files are chunked and embedded as vectors in Dataverse
+(<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">knowledge-unstructured-data</a>,
+verified); on Path A, content is vectorized into the tenant semantic index
+(verified, above). Past that, the pipeline is a black box.</p>
+
+<div class="claim unconfirmed">
+  <span class="stamp stamp-unconfirmed">Unconfirmed</span>
+  <p>Chunk size and chunking strategy are not documented and not configurable —
+  and whether document structure (headings, sections) affects chunk boundaries
+  is not confirmed by any primary source. Standard RAG intuition says it should;
+  Microsoft doesn't say. Treat as a hypothesis to test, not a fact.</p>
+</div>
+
+<div class="eyebrow">The consequential number</div>
+<h2>Only the top 3 results ground each answer</h2>
+<p>This is the single most consequential retrieval fact for tuning your agent.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"When Copilot Studio searches SharePoint, only the top three search results
+  are used to summarize and generate a response. If no search results are
+  returned, the generative answers node doesn't provide a response."
+  — <a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">sharepoint-no-response</a></p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>More documents ≠ better answers. If the right document isn't in the top 3,
+  it doesn't ground the answer <em>at all</em> — and near-duplicate documents are
+  actively harmful, crowding each other out of the top 3 and splitting relevance.
+  Precision and disambiguation (clear titles, distinct content, filtered scope)
+  beat volume, every time.</p>
+</div>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. Which statement describes Path A, the SharePoint knowledge source (connector)?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>It queries SharePoint search live at answer time</button>
+      <button type="button">It copies files into Dataverse for vector indexing</button>
+      <button type="button">It syncs content from SharePoint every six hours</button>
+    </div>
+    <div class="q-explain">Path A points at a SharePoint URL and queries SharePoint's search infrastructure in real time via GraphSearch — nothing is copied. Copying into Dataverse and periodic sync describe Path B.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">2. How often is Path B (file upload) content synchronized?</p>
+    <div class="q-opts">
+      <button type="button">Immediately at each user query</button>
+      <button type="button" data-correct>Every four to six hours</button>
+      <button type="button">Once every twenty four hours</button>
+    </div>
+    <div class="q-explain">Path B copies content into Dataverse and syncs every 4–6 hours. Only Path A (the connector) retrieves in real time.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">3. What content actually enters the SharePoint search index?</p>
+    <div class="q-opts">
+      <button type="button">Every crawled property extracted during crawls</button>
+      <button type="button">All document text plus raw metadata</button>
+      <button type="button" data-correct>Only content mapped to managed properties</button>
+    </div>
+    <div class="q-explain">"The index only includes content and metadata from the managed properties." Unmapped crawled properties are invisible to the agent — and new mappings need a re-crawl to take effect.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">4. How many SharePoint search results ground each generative answer?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Only the top three results</button>
+      <button type="button">Only the top ten results</button>
+      <button type="button">Every result the search returns</button>
+    </div>
+    <div class="q-explain">Only the top 3 results are used to summarize and generate a response. If the right document ranks 4th, it contributes nothing — which is why precision and deduplication matter enormously.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">5. What do we know about chunk size and chunking strategy?</p>
+    <div class="q-opts">
+      <button type="button">It is configurable in the Dataverse settings</button>
+      <button type="button">It follows headings and document section boundaries</button>
+      <button type="button" data-correct>It is undocumented and cannot be tuned</button>
+    </div>
+    <div class="q-explain">Chunking is a black box: no primary source documents chunk size or strategy, and no setting exposes it. Even the heading-affects-chunks idea is unconfirmed — a hypothesis to test, not a fact.</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>The Microsoft Learn page that documents both paths side by side — Dataverse
+  ingestion and embeddings, the 4–6 h sync, and the real-time connector — in
+  Microsoft's own words.
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-unstructured-data">Use unstructured data as a knowledge source</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="0004-builder-playbook.html">← Prev lesson</a>
+    <a href="0006-permission-trimming.html">Next lesson →</a>
+  </div>
+</nav>
+
+<script>
+// Field check quiz — instant feedback, per-quiz score, retry.
+// Markup contract: .quiz > .q > .q-opts > button[data-correct] + .q-explain
+document.querySelectorAll('.quiz').forEach(function (quiz) {
+  var questions = Array.prototype.slice.call(quiz.querySelectorAll('.q'));
+  var scoreEl = quiz.querySelector('.quiz-score .val');
+  var answered = 0;
+  var correct = 0;
+
+  quiz.addEventListener('click', function (e) {
+    var btn = e.target.closest('.q-opts button');
+    if (btn) {
+      var q = btn.closest('.q');
+      if (q.classList.contains('answered')) return;
+      q.classList.add('answered');
+      answered++;
+      var isRight = btn.hasAttribute('data-correct');
+      if (isRight) correct++;
+      btn.classList.add(isRight ? 'correct' : 'incorrect');
+      q.querySelectorAll('.q-opts button').forEach(function (b) {
+        if (b.hasAttribute('data-correct')) b.classList.add('correct');
+        b.disabled = true;
+      });
+      if (answered === questions.length) {
+        quiz.classList.add('done');
+        if (scoreEl) scoreEl.textContent = correct + ' / ' + questions.length;
+      }
+      return;
+    }
+    if (e.target.closest('.quiz-retry')) {
+      answered = 0;
+      correct = 0;
+      quiz.classList.remove('done');
+      questions.forEach(function (q) {
+        q.classList.remove('answered');
+        q.querySelectorAll('.q-opts button').forEach(function (b) {
+          b.classList.remove('correct', 'incorrect');
+          b.disabled = false;
+        });
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

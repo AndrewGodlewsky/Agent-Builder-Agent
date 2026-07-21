@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · The search schema playbook — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">08</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Course B — SharePoint RAG</div>
+      <h1>The search schema playbook</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>The verified site-owner levers: schema mapping, attribute dials, and knowledge-source filters</div>
+    <div><span class="k">Builds on</span><a href="0005-two-sharepoint-rag-paths.html">05 · How SharePoint RAG works</a> · <a href="0007-licensing-and-hard-limits.html">07 · Licensing &amp; limits</a></div>
+    <div><span class="k">Source</span>research/sharepoint-rag-optimization/04</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> You leave with the exact set of site-owner levers that
+verifiably move SharePoint retrieval quality — crawled→managed mapping, the three
+attribute dials, and the knowledge-source search filters — and you know which
+lever to reach for when the wrong document keeps winning a top-3 slot in your
+agent's answers.</p>
+
+<div class="eyebrow">The stakes</div>
+<h2>Top-3 grounding makes precision decisive</h2>
+<p>From lesson 07: only the <strong>top 3 search results</strong> ground each
+generative answer
+(<a href="https://learn.microsoft.com/en-us/troubleshoot/power-platform/copilot-studio/generative-answers/sharepoint-no-response">sharepoint-no-response</a>).
+That single mechanic is why this playbook exists. Every lever below serves one
+goal: get the right document into those three slots and keep the wrong ones out.</p>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>Point the knowledge source at the <strong>narrowest URL</strong> that holds
+  authoritative content, archive superseded near-duplicates, and keep one
+  canonical document per topic. This is inference from the verified top-3
+  mechanic — not a quoted Microsoft instruction — but it follows directly.</p>
+</div>
+
+<div class="eyebrow">The pipeline</div>
+<h2>Crawled → managed: nothing is searchable until it's mapped</h2>
+<p>SharePoint search discovers metadata as <strong>crawled properties</strong>,
+but only <strong>managed properties</strong> participate in queries and results
+(<a href="https://learn.microsoft.com/en-us/sharepoint/technical-reference/crawled-and-managed-properties-overview">crawled-and-managed-properties-overview</a>).
+New metadata joins the index only after you map it and the content is re-crawled.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"If you add a managed property, you must map it to a crawled property to get
+  content into the index. After the site, library, or list is crawled, users can
+  search for the content and metadata of new or changed managed properties…
+  [changes] take effect only after the content is re-crawled."
+  — <a href="https://learn.microsoft.com/en-us/sharepoint/manage-search-schema">manage-search-schema</a></p>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>The working sequence: <strong>SharePoint admin center → Search → Manage
+  Search Schema</strong>; find or create the managed property; map it to the
+  crawled property; await a re-crawl; then verify the content comes back in plain
+  SharePoint search <em>before</em> expecting the agent to use it.</p>
+</div>
+
+<div class="claim directional">
+  <span class="stamp stamp-directional">Directional</span>
+  <p>The crawled/managed mechanics are documented on SharePoint
+  <strong>Server</strong> pages. In SharePoint Online the schema is managed
+  per-tenant with less crawl-scheduling control — you may need to re-save items
+  or simply wait. Treat attribute <em>semantics</em> as authoritative and
+  crawl-<em>timing</em> as directional.</p>
+</div>
+
+<div class="eyebrow">The dials</div>
+<h2>Searchable, Queryable, Retrievable</h2>
+<p>Each managed property carries independent attributes — the dials a site owner
+turns
+(<a href="https://learn.microsoft.com/en-us/sharepoint/search/search-schema-overview">search-schema-overview</a>).</p>
+
+<div class="tablewrap">
+  <table>
+    <tr><th>Attribute</th><th>What it does</th><th>RAG use</th></tr>
+    <tr><td><strong>Searchable</strong></td><td>Adds content to the full-text index; matched by free-text queries</td><td>ON for content the agent should find by keyword or semantics</td></tr>
+    <tr><td><strong>Queryable</strong></td><td>Enables property-scoped queries (e.g. <code>author:Smith</code>) when the property is named</td><td>Targeted filtering — within Copilot Studio's own query limits</td></tr>
+    <tr><td><strong>Retrievable</strong></td><td>Allows the value to be returned in results</td><td>Disable to hide noisy properties from grounding</td></tr>
+    <tr><td><strong>Refinable / Sortable</strong></td><td>Enable refiners and sorting</td><td>Not supported in the modern search experience — skip</td></tr>
+  </table>
+</div>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"If you set a managed property to be searchable, the content is added to the
+  index… users can query for author:Smith… to prevent the content in a managed
+  property from showing up as search results, you can disable the retrievable
+  setting."
+  — <a href="https://learn.microsoft.com/en-us/sharepoint/manage-search-schema">manage-search-schema</a></p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>Refinable and Sortable are both "not supported in the modern search
+  experience"
+  (<a href="https://learn.microsoft.com/en-us/sharepoint/search/search-schema-overview">search-schema-overview</a>).
+  Time spent configuring refiners for this pipeline is time wasted — the three
+  dials that matter are Searchable, Queryable, and Retrievable.</p>
+</div>
+
+<div class="eyebrow">The filters</div>
+<h2>Search query filters: the highest-ROI knob</h2>
+<p>The one lever that needs no admin center at all: on the SharePoint knowledge
+source itself, Copilot Studio lets you set search query filter parameters on
+<strong>Title, Author, Modified by, and Modified on</strong>
+(<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">knowledge-add-sharepoint</a>).</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>"To improve the performance of your agent's SharePoint knowledge source,
+  specify search query parameters… For example, you could specify that you only
+  want searches for items that were modified in the last six months." Build your
+  filters "to include or exclude information."
+  — <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">knowledge-add-sharepoint</a></p>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>With only three grounding slots, every filter that shrinks the candidate set
+  toward authoritative content raises the odds the right doc lands in the top 3.
+  Concretely: filter <strong>Modified on</strong> to the last N months to exclude
+  stale docs, scope <strong>Author</strong> to the owners of authoritative
+  content, and use <strong>Title</strong> patterns to include or exclude whole
+  document families.</p>
+</div>
+
+<div class="eyebrow">The boundary</div>
+<h2>What schema tuning cannot buy</h2>
+<p>Schema and filters improve <strong>what is findable and returned</strong> —
+precision and disambiguation of grounded answers. They do not repeal the
+structural limits from
+<a href="0007-licensing-and-hard-limits.html">lesson 07</a>.</p>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>Making a column <strong>Queryable</strong> does not make the agent answer
+  "list / count / filter by column value" queries — Copilot Studio explicitly
+  doesn't support them at the knowledge-source level
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">requirements-quotas</a>).
+  File-by-name questions stay dead too. Schema tuning sharpens retrieval; it
+  never adds database-style query capability.</p>
+</div>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. You add a new managed property and map a crawled property to it. When does the content become searchable?</p>
+    <div class="q-opts">
+      <button type="button">Immediately after you save the mapping</button>
+      <button type="button" data-correct>Only after the content is re-crawled</button>
+      <button type="button">Only after the agent is republished</button>
+    </div>
+    <div class="q-explain">Schema changes take effect only after the content is re-crawled. In SharePoint Online you have limited crawl control — re-save items or wait, then verify in plain search first.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">2. Which attribute do you disable to keep an indexed property's value out of search results?</p>
+    <div class="q-opts">
+      <button type="button">Searchable</button>
+      <button type="button">Queryable</button>
+      <button type="button" data-correct>Retrievable</button>
+    </div>
+    <div class="q-explain">Disabling Retrievable prevents a managed property's content from showing up in results — the documented way to hide noisy or internal properties even when they're indexed.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">3. Why do the Copilot Studio search query filters (e.g., Modified on) matter so much for answer quality?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Only three results ground each generative answer</button>
+      <button type="button">They raise the file ceiling beyond limits</button>
+      <button type="button">They finally make column-value filtering queries work</button>
+    </div>
+    <div class="q-explain">Filters shrink the candidate set toward authoritative content, which directly improves the odds the right document wins one of only three grounding slots. They change nothing about ceilings or unsupported query types.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">4. You make a Status column Queryable in the schema. Can the agent now answer "List all files where Status = Approved"?</p>
+    <div class="q-opts">
+      <button type="button">Yes, queryable columns unlock filtered listing queries</button>
+      <button type="button" data-correct>No, column-value filtering stays unsupported regardless anyway</button>
+      <button type="button">Yes, but only after a full re-crawl</button>
+    </div>
+    <div class="q-explain">Copilot Studio doesn't support column-value filtering at the knowledge-source level no matter what the schema allows. Structured queries belong in Dataverse, a flow, or a custom tool — not SharePoint knowledge.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">5. Which filter fields does the SharePoint knowledge source actually support?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Title, Author, Modified by, Modified on</button>
+      <button type="button">Title, Author, File size, Content type</button>
+      <button type="button">Author, Folder, Column values, Modified on</button>
+    </div>
+    <div class="q-explain">The documented filter fields are Title, Author, Modified by, and Modified on. Folder and column-value filtering are not among them — and lesson 07 explains why they never will be at this layer.</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>Microsoft's authoritative reference for the crawled→managed model, the
+  re-crawl requirement, and the Searchable / Queryable / Retrievable semantics
+  this whole playbook turns on.
+  <a href="https://learn.microsoft.com/en-us/sharepoint/manage-search-schema">Manage the search schema in SharePoint</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="0007-licensing-and-hard-limits.html">← Prev lesson</a>
+    <a href="0009-document-optimization.html">Next lesson →</a>
+  </div>
+</nav>
+
+<script>
+// Field check quiz — instant feedback, per-quiz score, retry.
+// Markup contract: .quiz > .q > .q-opts > button[data-correct] + .q-explain
+document.querySelectorAll('.quiz').forEach(function (quiz) {
+  var questions = Array.prototype.slice.call(quiz.querySelectorAll('.q'));
+  var scoreEl = quiz.querySelector('.quiz-score .val');
+  var answered = 0;
+  var correct = 0;
+
+  quiz.addEventListener('click', function (e) {
+    var btn = e.target.closest('.q-opts button');
+    if (btn) {
+      var q = btn.closest('.q');
+      if (q.classList.contains('answered')) return;
+      q.classList.add('answered');
+      answered++;
+      var isRight = btn.hasAttribute('data-correct');
+      if (isRight) correct++;
+      btn.classList.add(isRight ? 'correct' : 'incorrect');
+      q.querySelectorAll('.q-opts button').forEach(function (b) {
+        if (b.hasAttribute('data-correct')) b.classList.add('correct');
+        b.disabled = true;
+      });
+      if (answered === questions.length) {
+        quiz.classList.add('done');
+        if (scoreEl) scoreEl.textContent = correct + ' / ' + questions.length;
+      }
+      return;
+    }
+    if (e.target.closest('.quiz-retry')) {
+      answered = 0;
+      correct = 0;
+      quiz.classList.remove('done');
+      questions.forEach(function (q) {
+        q.classList.remove('answered');
+        q.querySelectorAll('.q-opts button').forEach(function (b) {
+          b.classList.remove('correct', 'incorrect');
+          b.disabled = false;
+        });
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

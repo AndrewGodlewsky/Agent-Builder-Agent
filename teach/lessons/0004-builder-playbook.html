@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · The builder's playbook: what goes where — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">04</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Course A — Knowledge Fundamentals</div>
+      <h1>The builder's playbook: what goes where</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>Place any piece of content — instructions, knowledge, or topic — correctly, first try</div>
+    <div><span class="k">Builds on</span>Lessons 01–02 · <a href="0003-source-types-and-limits.html">03 · Source types &amp; limits</a></div>
+    <div><span class="k">Source</span>research/copilot-studio-knowledge/05</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> the capstone of Course A. Hand yourself any piece of
+content for your agent — a persona, a policy PDF, a response template, a routing
+rule — and you can name where it belongs (instructions, knowledge, or a topic
+node), catch the six classic misplacements before they ship, and run the config
+checklist from memory.</p>
+
+<div class="eyebrow">The one rule</div>
+<h2>Facts get retrieved; behavior gets instructed</h2>
+<p>Everything in Course A compresses into one sentence:
+<strong>knowledge = facts the agent retrieves and cites; instructions = behavior,
+routing, tone, and any examples or templates.</strong> Two symmetric mistakes fall
+straight out of it. Putting behavior <em>into knowledge</em> fails because
+retrieval is conditional and fragmentary — top-3 chunks, only when the
+orchestrator searches. Putting retrieval-steering <em>into instructions</em> fails
+because instructions shape summarization, not retrieval.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>Instructions drive the agent's behavior and cannot modify what retrieval
+  returns; Microsoft's guidance is to <strong>remove</strong> instructions that try to
+  steer retrieval and to scope sources structurally instead
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/authoring-instructions">authoring-instructions</a>,
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/generative-mode-guidance">generative-mode-guidance</a>).</p>
+</div>
+
+<div class="eyebrow">Placement</div>
+<h2>The placement table</h2>
+<p>The full decision surface, one row per intent.</p>
+
+<div class="tablewrap">
+<table>
+  <tr><th>You want the agent to…</th><th>Put it in…</th><th>Why</th></tr>
+  <tr><td>Answer questions from docs/policies/sites</td><td><strong>Knowledge source</strong></td><td>Exactly what RAG is for</td></tr>
+  <tr><td>Follow a persona, tone, brand voice</td><td><strong>Instructions</strong></td><td>Behavior, not facts</td></tr>
+  <tr><td>Match a response format or template</td><td><strong>Instructions</strong> (or topic/prompt node)</td><td>Examples must be deterministically in-context</td></tr>
+  <tr><td>Handle edge cases via examples</td><td><strong>Instructions</strong> (few-shot)</td><td>Microsoft's <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/declarative-agent-instructions">recommended technique</a></td></tr>
+  <tr><td>Route to a source when genuinely ambiguous</td><td><strong>Instructions</strong> (one short hint)</td><td>Only for real ambiguity</td></tr>
+  <tr><td>Restrict a turn to specific sources</td><td><strong><a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-boost-node">Generative answers node</a></strong></td><td>Instructions can't steer retrieval</td></tr>
+  <tr><td>Answer only from approved content</td><td><strong><code>Allow ungrounded responses</code> = off</strong></td><td>Governance gate</td></tr>
+  <tr><td>Decide what gets retrieved or ranked</td><td><em>Nowhere — it's automatic</em></td><td>Retrieval logic isn't author-controllable</td></tr>
+</table>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>The last row is the hardest to accept. Chunking, ranking, and source
+  selection are not author-controllable knobs
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">knowledge overview</a>).
+  Your levers are structural: which sources exist, their names and descriptions
+  (what the orchestrator routes on), and node-level scoping.</p>
+</div>
+
+<div class="eyebrow">Anti-patterns</div>
+<h2>Six misplacements to catch in review</h2>
+<ol>
+  <li><strong>Retrieval-steering instructions</strong> — "always prefer the 2025 policy
+  doc," "search only the HR folder." Instructions can't do this; scope with a
+  generative answers node.</li>
+  <li><strong>Examples or templates stored as knowledge.</strong> Retrieval is
+  conditional and top-3-fragmentary — your exemplar may never surface. Put
+  examples in instructions.</li>
+  <li><strong>Enumerating every source in instructions.</strong> The orchestrator
+  already routes on source names and descriptions; boilerplate listings waste
+  instruction space.</li>
+  <li><strong>Dumping hundreds of sources for "coverage."</strong> ~3 chunks per source
+  per turn means volume dilutes. Curate instead.</li>
+  <li><strong>Expecting knowledge to enforce persona.</strong> Knowledge is data; it
+  cannot define behavior.</li>
+  <li><strong>Planning large SharePoint docs without checking licensing.</strong> 7 MB
+  without a same-tenant M365 Copilot license vs. 200 MB with it
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/retrieval-augmented-generation">RAG guidance</a>).</li>
+</ol>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>Anti-patterns 1–3 fail <em>silently</em>: the agent still answers, just
+  ignores your steering line or never retrieves your template. Nothing errors —
+  quality quietly degrades. That's why they must be caught in review, not
+  discovered in production.</p>
+</div>
+
+<div class="eyebrow">Config decisions</div>
+<h2>Five choices to make deliberately</h2>
+<p>Make these explicit — never defaults-by-accident:</p>
+<ul>
+  <li><strong>Orchestration → generative.</strong> More inputs, proactive automatic
+  retrieval, node-level scoping — the recommended mode for knowledge-heavy
+  agents (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-copilot-studio">knowledge overview</a>).</li>
+  <li><strong><code>Allow ungrounded responses</code>.</strong> Off = must ground every
+  answer (high assurance; refuses and hits the fallback topic when it can't).
+  On = may fall back to general model knowledge.</li>
+  <li><strong>Source curation.</strong> Clear, distinct name + description per source —
+  this is the routing signal. Few authoritative sources beat many.</li>
+  <li><strong>Scoping.</strong> Topics that must draw only from certain sources get a
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/nlu-boost-node">generative answers node</a>
+  listing exactly those sources.</li>
+  <li><strong>SharePoint verification.</strong> Confirm the license-gated size ceiling
+  and test permission trimming as a <em>regular</em> user, not an admin
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-sharepoint">knowledge-add-sharepoint</a>).</li>
+</ul>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>Need templated or example-driven responses? Knowledge is the wrong vehicle.
+  The documented path is <strong>few-shot input→output pairs in instructions</strong>;
+  topics + prompt nodes are the fallback for deterministic structure. Prototype
+  the instructions approach first.</p>
+</div>
+
+<div class="eyebrow">The checklist</div>
+<h2>Run this before you ship</h2>
+<ul>
+  <li>Behavior, persona, tone, and examples live in <strong>instructions</strong> — not knowledge.</li>
+  <li>No instruction tries to steer <em>which</em> documents get retrieved.</li>
+  <li>Retrieval scoping (where needed) is done via <strong>generative answers nodes</strong>.</li>
+  <li>Every source has a clear, distinct <strong>name + description</strong>.</li>
+  <li>Sources are <strong>curated</strong>, not dumped (top-3-chunks-per-source).</li>
+  <li><code>Allow ungrounded responses</code> is set deliberately for your assurance level.</li>
+  <li>SharePoint: licensing, size ceiling, and permission trimming confirmed.</li>
+  <li>Within the caps (500 sources / 500 files) — verified against
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/requirements-quotas">live quotas</a>,
+  since numbers shift.</li>
+  <li>At large scale: evaluated the
+  <a href="https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/api/ai-services/retrieval/overview">M365 Retrieval API</a>
+  / Azure AI Search path vs. built-in knowledge.</li>
+</ul>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. You want every support answer to follow a fixed numbered-list template. Where does the template belong?</p>
+    <div class="q-opts">
+      <button type="button">A knowledge source document</button>
+      <button type="button" data-correct>The agent instructions field</button>
+      <button type="button">A Dataverse table source</button>
+    </div>
+    <div class="q-explain">Templates and examples must be deterministically in-context, so they go in instructions (or a topic/prompt node). As knowledge, retrieval is conditional and top-3-fragmentary — the template may never surface.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">2. HR questions must draw only from the HR policy library. Where do you enforce that?</p>
+    <div class="q-opts">
+      <button type="button">An instruction naming the library</button>
+      <button type="button" data-correct>A scoped generative answers node</button>
+      <button type="button">The allow ungrounded responses toggle</button>
+    </div>
+    <div class="q-explain">Restricting a turn to specific sources is structural: a generative answers node listing only those sources. Instructions can't steer retrieval, and the ungrounded toggle governs grounding overall, not which source wins.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">3. A colleague adds "Always prefer the 2026 policy doc" to instructions. Why is this wrong?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Instructions cannot steer retrieval ranking</button>
+      <button type="button">Instructions cannot mention specific documents</button>
+      <button type="button">Instructions cannot exceed character limits</button>
+    </div>
+    <div class="q-explain">Instructions shape summarization and behavior, not what retrieval returns. Microsoft says to remove retrieval-steering instructions and scope structurally instead. It fails silently — the line is simply ignored.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">4. The agent must answer only from approved content, refusing when it can't ground. Which setting?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Allow ungrounded responses off</button>
+      <button type="button">Allow ungrounded responses on</button>
+      <button type="button">Enable tenant graph grounding</button>
+    </div>
+    <div class="q-explain">Off is the governance gate: turns that can't ground are refused and hit the fallback topic. On permits answers from general model knowledge. Tenant graph grounding affects SharePoint retrieval quality, not assurance.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">5. You have a few input→output examples for tricky edge-case queries. Where do they go?</p>
+    <div class="q-opts">
+      <button type="button">Uploaded as knowledge files</button>
+      <button type="button" data-correct>Few-shot in the instructions</button>
+      <button type="button">Inside a Dataverse table</button>
+    </div>
+    <div class="q-explain">Few-shot examples in instructions is Microsoft's recommended technique for edge cases. RAG is scoped to factual Q&amp;A — examples stored as knowledge may never be retrieved when needed.</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>Microsoft's own decision-oriented guidance for generative agents — the page
+  behind the placement rules here, including "don't list sources" and scoping via
+  nodes.
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/guidance/generative-mode-guidance">Guidance for generative mode in Copilot Studio</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="0003-source-types-and-limits.html">← Prev lesson</a>
+    <a href="0005-two-sharepoint-rag-paths.html">Next lesson →</a>
+  </div>
+</nav>
+
+<script>
+// Field check quiz — instant feedback, per-quiz score, retry.
+// Markup contract: .quiz > .q > .q-opts > button[data-correct] + .q-explain
+document.querySelectorAll('.quiz').forEach(function (quiz) {
+  var questions = Array.prototype.slice.call(quiz.querySelectorAll('.q'));
+  var scoreEl = quiz.querySelector('.quiz-score .val');
+  var answered = 0;
+  var correct = 0;
+
+  quiz.addEventListener('click', function (e) {
+    var btn = e.target.closest('.q-opts button');
+    if (btn) {
+      var q = btn.closest('.q');
+      if (q.classList.contains('answered')) return;
+      q.classList.add('answered');
+      answered++;
+      var isRight = btn.hasAttribute('data-correct');
+      if (isRight) correct++;
+      btn.classList.add(isRight ? 'correct' : 'incorrect');
+      q.querySelectorAll('.q-opts button').forEach(function (b) {
+        if (b.hasAttribute('data-correct')) b.classList.add('correct');
+        b.disabled = true;
+      });
+      if (answered === questions.length) {
+        quiz.classList.add('done');
+        if (scoreEl) scoreEl.textContent = correct + ' / ' + questions.length;
+      }
+      return;
+    }
+    if (e.target.closest('.quiz-retry')) {
+      answered = 0;
+      correct = 0;
+      quiz.classList.remove('done');
+      questions.forEach(function (q) {
+        q.classList.remove('answered');
+        q.querySelectorAll('.q-opts button').forEach(function (b) {
+          b.classList.remove('correct', 'incorrect');
+          b.disabled = false;
+        });
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

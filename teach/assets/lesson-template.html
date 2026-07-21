@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- =====================================================================
+  LESSON TEMPLATE — Copilot Studio Field Manual
+  How to use (for authoring agents):
+  1. Copy this file to ../lessons/NNNN-slug.html.
+  2. INLINE the full contents of course.css into the <style> tag below and
+     the full contents of quiz.js into the <script> tag at the end.
+     The final file must be fully self-contained (no external requests).
+  3. Replace every [BRACKETED] placeholder with real content.
+  4. Keep the structural order: titleblock → win → sections → field check
+     → primary source → teacher reminder → refbar.
+  Component vocabulary:
+    .claim.verified|.directional|.unconfirmed + .stamp  — evidence-tiered claims
+    .note / .gotcha                                     — callouts
+    .tablewrap > table                                  — comparison tables
+    .quiz > .q                                          — field check questions
+      (every option in a question = SAME word count; data-correct on the right one)
+====================================================================== -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>[NN] · [Lesson Title] — Copilot Studio Field Manual</title>
+<style>
+/* INLINE course.css HERE */
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">[NN]</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · [Course A — Knowledge Fundamentals]</div>
+      <h1>[Lesson Title]</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>[One line: the single thing this lesson teaches]</div>
+    <div><span class="k">Builds on</span>[<a href="0001-slug.html">01 · Short name</a> or "None"]</div>
+    <div><span class="k">Source</span>[research/…/NN-doc.md]</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> [One or two sentences: the tangible decision-making
+ability the builder walks away with, tied to the mission of building their
+Copilot Studio agent.]</p>
+
+<div class="eyebrow">[Section label, e.g. "The core distinction"]</div>
+<h2>[Section heading]</h2>
+<p>[Body copy. Cite Microsoft Learn with inline links. Keep paragraphs short.]</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>[A load-bearing claim backed by primary Microsoft documentation.]</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Field note</span>
+  <p>[Practical builder guidance derived from the claim.]</p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>[A silent failure mode or common misconception.]</p>
+</div>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. [Question text?]</p>
+    <div class="q-opts">
+      <button type="button">[Wrong option, N words]</button>
+      <button type="button" data-correct>[Right option, N words]</button>
+      <button type="button">[Wrong option, N words]</button>
+    </div>
+    <div class="q-explain">[Why the right answer is right — one or two sentences.]</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>[One sentence on why this is the highest-trust source for this topic.]
+  <a href="https://learn.microsoft.com/…">[Title of the Microsoft Learn page]</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    [<a href="NNNN-prev-slug.html">← Prev lesson</a>]
+    [<a href="NNNN-next-slug.html">Next lesson →</a>]
+  </div>
+</nav>
+
+<script>
+/* INLINE quiz.js HERE */
+</script>
+</body>
+</html>

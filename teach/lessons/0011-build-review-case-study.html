@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Case study: your own agent's build review — Copilot Studio Field Manual</title>
+<style>
+/* ================================================================
+   Copilot Studio Field Manual — course stylesheet
+   Drafting-room field manual: cool porcelain paper, carbon ink,
+   drafting-blue accent. DIN headings (Bahnschrift), Georgia body,
+   Consolas data. Signature: engineering title block + evidence stamps.
+   ================================================================ */
+
+:root {
+  --paper: #eef1f4;
+  --panel: #ffffff;
+  --ink: #182630;
+  --muted: #5b6b77;
+  --draft: #1d5fa0;
+  --draft-soft: #e3ecf6;
+  --verified: #17765a;
+  --verified-soft: #e2f1ec;
+  --directional: #9a6a0b;
+  --directional-soft: #f6eeda;
+  --unconfirmed: #a93b54;
+  --unconfirmed-soft: #f7e6ea;
+  --hairline: #cbd5dd;
+  --display: "Bahnschrift", "Arial Narrow", "Segoe UI", sans-serif;
+  --body: Georgia, "Times New Roman", serif;
+  --data: Consolas, "Cascadia Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: var(--paper); }
+
+body {
+  font-family: var(--body);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--ink);
+  max-width: none;
+  margin: 0 auto;
+  padding: 2.5rem 4vw 5rem;
+}
+
+/* ---------------- Title block (signature element) ---------------- */
+
+.titleblock {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  margin-bottom: 3rem;
+}
+
+.titleblock-top {
+  display: flex;
+  border-bottom: 2px solid var(--ink);
+}
+
+.titleblock-no {
+  font-family: var(--display);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--draft);
+  padding: 0.75rem 1.25rem;
+  border-right: 2px solid var(--ink);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.titleblock-main {
+  padding: 0.9rem 1.25rem;
+  flex: 1;
+}
+
+.titleblock-series {
+  font-family: var(--data);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+
+.titleblock h1 {
+  font-family: var(--display);
+  font-size: 1.85rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+}
+
+.titleblock-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-family: var(--data);
+  font-size: 0.78rem;
+}
+
+.titleblock-meta > div {
+  padding: 0.55rem 1rem;
+  border-right: 1px solid var(--hairline);
+}
+.titleblock-meta > div:last-child { border-right: none; }
+
+.titleblock-meta .k {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.15rem;
+}
+
+/* ---------------- Sections ---------------- */
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--draft);
+  margin: 3rem 0 0.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.9rem;
+}
+
+h3 {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 1.6rem 0 0.5rem;
+}
+
+p { margin-bottom: 1rem; }
+p + ul, p + ol { margin-top: -0.4rem; }
+ul, ol { margin: 0 0 1rem 1.4rem; }
+li { margin-bottom: 0.35rem; }
+
+a { color: var(--draft); text-underline-offset: 2px; }
+a:hover { color: var(--ink); }
+
+strong { font-weight: 700; }
+
+code {
+  font-family: var(--data);
+  font-size: 0.88em;
+  background: var(--draft-soft);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+/* ---------------- Evidence stamps ---------------- */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.5rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  vertical-align: 0.15em;
+  transform: rotate(-1deg);
+}
+.stamp-verified { color: var(--verified); background: var(--verified-soft); }
+.stamp-directional { color: var(--directional); background: var(--directional-soft); }
+.stamp-unconfirmed { color: var(--unconfirmed); background: var(--unconfirmed-soft); }
+
+/* ---------------- Claim cards & callouts ---------------- */
+
+.claim {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-left: 4px solid var(--draft);
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+}
+.claim.verified { border-left-color: var(--verified); }
+.claim.directional { border-left-color: var(--directional); }
+.claim.unconfirmed { border-left-color: var(--unconfirmed); }
+.claim .stamp { float: right; margin-left: 0.75rem; }
+.claim p:last-child { margin-bottom: 0; }
+
+.note, .gotcha {
+  padding: 1rem 1.25rem;
+  margin: 1.25rem 0;
+  font-size: 0.97rem;
+}
+.note {
+  background: var(--draft-soft);
+  border-left: 4px solid var(--draft);
+}
+.gotcha {
+  background: var(--unconfirmed-soft);
+  border-left: 4px solid var(--unconfirmed);
+}
+.note-label, .gotcha-label {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.note-label { color: var(--draft); }
+.gotcha-label { color: var(--unconfirmed); }
+.note p:last-child, .gotcha p:last-child { margin-bottom: 0; }
+
+/* ---------------- Tables ---------------- */
+
+.tablewrap { overflow-x: auto; margin: 1.25rem 0; }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--panel);
+  font-size: 0.92rem;
+}
+
+th {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--panel);
+  background: var(--ink);
+  padding: 0.5rem 0.8rem;
+}
+
+td {
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--hairline);
+  vertical-align: top;
+}
+
+td.num { font-family: var(--data); font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------------- Quiz ("Field check") ---------------- */
+
+.quiz {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.quiz-title {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.quiz-sub {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+}
+
+.q { margin-bottom: 1.75rem; }
+.q:last-of-type { margin-bottom: 0.5rem; }
+
+.q-text { font-weight: 700; margin-bottom: 0.6rem; }
+
+.q-opts { display: grid; gap: 0.45rem; margin: 0; }
+
+.q-opts button {
+  font-family: var(--body);
+  font-size: 0.98rem;
+  text-align: left;
+  padding: 0.6rem 0.9rem;
+  background: var(--paper);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.q-opts button:hover:not(:disabled) { border-color: var(--draft); }
+.q-opts button:focus-visible { outline: 2px solid var(--draft); outline-offset: 2px; }
+
+.q-opts button.correct {
+  background: var(--verified-soft);
+  border-color: var(--verified);
+  font-weight: 700;
+}
+.q-opts button.incorrect {
+  background: var(--unconfirmed-soft);
+  border-color: var(--unconfirmed);
+}
+.q-opts button:disabled { cursor: default; opacity: 0.9; }
+
+.q-explain {
+  display: none;
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.93rem;
+  background: var(--draft-soft);
+  border-left: 3px solid var(--draft);
+}
+.q.answered .q-explain { display: block; }
+
+.quiz-score {
+  display: none;
+  font-family: var(--display);
+  font-weight: 700;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--hairline);
+}
+.quiz.done .quiz-score { display: block; }
+
+.quiz-retry {
+  font-family: var(--display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-left: 0.9rem;
+  padding: 0.3rem 0.8rem;
+  background: var(--panel);
+  color: var(--draft);
+  border: 1.5px solid var(--draft);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.quiz-retry:hover { background: var(--draft-soft); }
+
+/* ---------------- Primary source & teacher reminder ---------------- */
+
+.source-rec {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+}
+.source-rec .k {
+  display: block;
+  font-family: var(--display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--verified);
+  margin-bottom: 0.3rem;
+}
+.source-rec p:last-child { margin-bottom: 0; }
+
+.teacher {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 2.5rem 0 1.5rem;
+}
+
+/* ---------------- Footer nav ---------------- */
+
+.refbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  justify-content: space-between;
+  font-family: var(--data);
+  font-size: 0.82rem;
+  border-top: 2px solid var(--ink);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+.refbar .refs { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+
+/* ---------------- Responsive / print / motion ---------------- */
+
+@media (max-width: 560px) {
+  body { font-size: 1rem; padding-top: 1.5rem; }
+  .titleblock-no { font-size: 2rem; padding: 0.6rem 0.9rem; }
+  .titleblock h1 { font-size: 1.4rem; }
+  .titleblock-meta { grid-template-columns: 1fr; }
+  .titleblock-meta > div { border-right: none; border-bottom: 1px solid var(--hairline); }
+  .titleblock-meta > div:last-child { border-bottom: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+@media print {
+  html { background: #fff; }
+  body { max-width: none; padding: 0; font-size: 10.5pt; }
+  .quiz, .teacher { display: none; }
+  .titleblock, .claim, .note, .gotcha { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <div class="titleblock-top">
+    <div class="titleblock-no">11</div>
+    <div class="titleblock-main">
+      <div class="titleblock-series">Copilot Studio Field Manual · Course C — Case Study</div>
+      <h1>Case study: your own agent's build review</h1>
+    </div>
+  </div>
+  <div class="titleblock-meta">
+    <div><span class="k">Scope</span>Reading the 9 findings of your agent's build review as applied course lessons</div>
+    <div><span class="k">Builds on</span><a href="0010-retrieval-api-vs-builtin.html">10 · Retrieval API vs. built-in</a></div>
+    <div><span class="k">Source</span>research/build-review/copilot-studio-agent-technical-review.md</div>
+  </div>
+</header>
+
+<p><strong>The win:</strong> You can pick up a Copilot Studio package you built —
+starting with your own <code>Agent/</code> — and spot the review's whole class of
+mistakes before they ship: prerequisite gaps, routing-starved sources, ungrounded
+drift, and procedure buried in knowledge. That's the last checkbox on the
+mission's success list.</p>
+
+<div class="eyebrow">The setup</div>
+<h2>Nine findings, zero new concepts</h2>
+<p>On 2026-07-21 a technical review read your shipped <code>Agent/</code> package —
+settings, instructions, README, and the five <code>.md</code> knowledge files —
+and checked its risk claims against live Microsoft Learn docs. It found nine
+issues, none requiring a redesign. The point of this lesson is not the fixes
+(they're one-line edits). It's that <strong>almost every finding is an instance
+of a distinction this course already taught.</strong> If the concepts stuck, you
+should be able to predict each finding before you read it.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>One worry the review cleared up front: Copilot Studio's supported knowledge
+  file types explicitly include "Text (.txt, <strong>.md</strong>, .log)" — so
+  uploading the five Markdown knowledge files as-is works.
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Upload
+  files as a knowledge source</a>.)</p>
+</div>
+
+<p>The review groups the findings worst-first: things that stop the build,
+things that degrade the running agent, and things that rot quietly over time.
+We'll walk them in that order.</p>
+
+<div class="eyebrow">Group 1 · Build-blocking and setup gaps</div>
+<h2>The build stops before it starts</h2>
+
+<h3>Finding 1 — the Dataverse search prerequisite never reached the build guide</h3>
+<p><strong>What:</strong> <code>Agent/README.md</code> lists only a Copilot Studio
+license and "permission to add knowledge sources" as prerequisites.
+<strong>Why it matters:</strong> you learned in the fundamentals course that the
+file-upload path copies files into Dataverse and indexes them there — which is
+exactly why the environment must have Dataverse search switched on before any
+file can be added.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>Uploading files as an agent-level knowledge source <strong>requires Dataverse
+  search enabled in the environment</strong> — an admin setting. If it's off, you
+  cannot add file knowledge at all.
+  (<a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Upload
+  files as a knowledge source</a>.)</p>
+</div>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>The agent's own knowledge already documents this requirement
+  (<code>knowledge/03-artifact-formats.md:377</code>) — it just never made it
+  into the setup doc a human follows. Knowing a fact and operationalizing it
+  are different ship gates. Audit your build guide against your own knowledge
+  files.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Add "Dataverse search enabled in the target environment (admin action)" to
+  the README prerequisites. One line, saves the most likely step-4 dead stop.</p>
+</div>
+
+<h3>Finding 2 — "add these three" starters, followed by four rows</h3>
+<p><code>00-agent-settings.md</code> says "Add these three" conversation starters
+and then lists four (Build / Fix / From my docs / Not sure); the README repeats
+"three." Trivial to fix, but it's the maintenance lesson in miniature: any
+hard-coded count is a claim that can drift from the thing it counts. Pick one —
+drop a row or say four.</p>
+
+<h3>Finding 3 — five knowledge sources, zero descriptions</h3>
+<p><strong>What:</strong> the README says "upload all five files" and never
+mentions writing a Description for each. <strong>Why it matters:</strong> this is
+description-driven source routing from the fundamentals course. Under generative
+orchestration the agent decides <em>which source to consult</em> by its name and
+description. Your own <code>knowledge/04-platforms-and-quality.md</code> calls
+description quality "the main authoring lever" — and the Learn upload flow makes
+Description an explicit step.</p>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>Five undescribed sources don't error. The agent still answers — it just
+  routes unreliably, pulling from the wrong file with full confidence. Routing
+  failures are silent; you only see them as "the answer felt off."</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Write a one-line description per file into <code>00-agent-settings.md</code>
+  and add "enter each description" to the upload step. Descriptions are the
+  cheapest retrieval-quality lever you have.</p>
+</div>
+
+<div class="eyebrow">Group 2 · Runtime reliability</div>
+<h2>The agent runs — differently than you think</h2>
+
+<h3>Finding 4 — "Allow ungrounded responses = ON" fights the knowledge base</h3>
+<p><strong>What:</strong> the instructions demand "Ground every fact… never
+invent platform behaviour, schema fields," yet the ungrounded-responses toggle
+is ON. With ungrounded ON, nothing <em>enforces</em> retrieval: the model can
+answer schema versions, limits, and portal steps from its own — possibly stale —
+parametric memory instead of the five files.</p>
+<p><strong>Why it happens:</strong> this is the ungrounded-responses trade-off
+from the fundamentals course, not an oversight. With the toggle OFF, clarifying
+and follow-up questions are treated as ungrounded and stop working. The setting
+was turned ON to keep the conversation usable — and the hallucination risk came
+along for the ride.</p>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Keep it ON, but harden <code># SCOPE &amp; GROUNDING</code>: "before stating
+  any schema field, version number, or limit, retrieve it from knowledge; if not
+  retrievable, say so." Then lean on Finding 5, so the agent's core method never
+  depends on retrieval in the first place.</p>
+</div>
+
+<h3>Finding 5 — the method lives in knowledge; it belongs in instructions</h3>
+<p><strong>What:</strong> the agent's operating procedure — the 5-layer isolation
+algorithm, error-code decoder, workflow routing — lives in the knowledge files.
+<strong>Why it matters:</strong> this is the course's core distinction, applied.
+Instructions drive behavior and are always in the model's context. Knowledge is
+best-effort RAG: Copilot Studio chunks the documents, and semantic retrieval can
+return a partial chunk — half a table, three steps of five — instead of the whole
+procedure. A method that must run completely should never be fetched
+probabilistically.</p>
+
+<div class="claim verified">
+  <span class="stamp stamp-verified">Verified</span>
+  <p>The famous 8,000-character instruction ceiling applies to
+  <strong>declarative agents for Microsoft 365</strong>, not Copilot Studio
+  custom agents. <code>01-instructions.md</code> stays short and delegates the
+  method to knowledge for no reason — there's room to promote it.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Promote the non-negotiable procedure — greet/route logic, Workflow A/B
+  steps, the five-layer order — into the instruction body. Leave knowledge to
+  what it's good at: lookup detail (schemas, error codes, archetypes).
+  Instructions = guaranteed context; knowledge = best-effort facts. This is also
+  the best hedge against Finding 4: a method carried in instructions can't fail
+  to be retrieved.</p>
+</div>
+
+<h3>Finding 6 — moderation "High" can filter the agent's own answers</h3>
+<p><strong>What:</strong> this agent talks about jailbreaks, prompt injection,
+and XPIA constantly — it's a security-aware builder's assistant, and users paste
+injection-looking artifacts at it for diagnosis. <strong>Why it matters:</strong>
+this is moderation self-filtering from the diagnostics material: High RAI
+moderation can trip <code>OpenAIJailBreak</code> /
+<code>OpenAIndirectAttack</code> on exactly the content this agent must
+discuss. Your own <code>knowledge/05-diagnostics.md</code> documents it as a
+failure mode.</p>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>The filter doesn't distinguish discussing an attack from performing one. An
+  agent whose subject matter is agent security will periodically censor itself —
+  and the user just sees a blocked or deflected answer, not the reason.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Consider Medium, or ship High expecting to notch down. Either way, add the
+  documented mitigation to instructions: a line stating that discussing agent
+  security is expected behavior.</p>
+</div>
+
+<h3>Finding 7 — five sources, sitting exactly at the ~5-source ceiling</h3>
+<p><strong>What:</strong> the package ships five knowledge sources.
+<strong>Why it matters:</strong> per your own research
+(<code>knowledge/03-artifact-formats.md:375</code>), only about five sources are
+effectively usable at a time under generative orchestration, which filters
+beyond that. At exactly five you have zero headroom and maximum routing
+contention — every new source you add later degrades routing for all of them.</p>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Consolidate into fewer, larger, well-described sources — e.g. merge 01+02
+  into a single build reference and keep 05 diagnostics separate — or use file
+  groups. Fewer, sharper sources beat many overlapping ones (the same curation
+  logic as SharePoint's top-3 grounding).</p>
+</div>
+
+<div class="eyebrow">Group 3 · Accuracy and maintenance</div>
+<h2>Correct today, wrong at the next version bump</h2>
+
+<h3>Finding 8 — hard-coded versions drift, and ungrounded ON makes the drift silent</h3>
+<p><strong>What:</strong> the knowledge pins <code>declarativeAgent v1.7</code>,
+<code>apiPlugin v2.4</code>, app manifest <code>1.19</code>, a Copilot-Credit
+rate table, and GPT 5.0→5.1. <strong>Why it matters:</strong> this is version
+drift compounded by Finding 4. When Microsoft bumps a schema, the agent keeps
+emitting the stale version confidently — and because unrecognized properties
+invalidate an entire manifest, one field blended from parametric memory produces
+a document that fails validation. The package ships zero tools by design, so
+nothing in the loop catches it.</p>
+
+<div class="gotcha">
+  <span class="gotcha-label">Gotcha</span>
+  <p>A concrete landmine is already in the files: the archetype YAML uses
+  lowercase <code>web_search</code> / <code>code_interpreter</code>
+  (<code>knowledge/02-archetype-library.md:65,165</code>), but real manifest
+  capability names are <code>WebSearch</code> / <code>CodeInterpreter</code>.
+  Echo the archetype casing into JSON output and the manifest is invalid — with
+  no error until the user tries to deploy it.</p>
+</div>
+
+<div class="note">
+  <span class="note-label">Fix</span>
+  <p>Add a "verify current schema version before emitting" self-check to
+  instructions, and make the AgentSpec→manifest casing rule explicit in
+  <code>03-artifact-formats.md</code>. Longer term, a validation flow (already
+  noted as a future enhancement) closes the loop properly.</p>
+</div>
+
+<h3>Finding 9 — (minor) the Fallback topic isn't your out-of-scope guardrail</h3>
+<p>The README says to edit the classic Fallback system topic. Harmless — but
+under generative orchestration, off-topic handling is driven mostly by the
+<code># SCOPE</code> / <code># GUARDRAILS</code> instructions, not that topic.
+Keep the instruction-level refusal as the real control and treat the topic edit
+as cosmetic. Same lesson as Finding 5: behavior belongs in instructions.</p>
+
+<div class="eyebrow">The through-line</div>
+<h2>Every finding is a course concept wearing work clothes</h2>
+<p>Lay the review over the syllabus and the mapping is nearly one-to-one. This
+is the real capstone claim: you didn't need a reviewer, you needed to apply what
+you already researched.</p>
+
+<div class="tablewrap">
+<table>
+  <thead>
+    <tr><th>Finding</th><th>Course concept it instantiates</th></tr>
+  </thead>
+  <tbody>
+    <tr><td class="num">1</td><td>File upload copies into Dataverse → Dataverse search is a hard prerequisite</td></tr>
+    <tr><td class="num">2</td><td>Hard-coded counts drift from what they count (maintenance discipline)</td></tr>
+    <tr><td class="num">3</td><td>Description-driven source routing under generative orchestration</td></tr>
+    <tr><td class="num">4</td><td>The ungrounded-responses trade-off: conversational flow vs. enforced retrieval</td></tr>
+    <tr><td class="num">5</td><td>Instructions vs. knowledge: behavior is guaranteed context; RAG is best-effort chunks</td></tr>
+    <tr><td class="num">6</td><td>Moderation self-filtering on security-adjacent subject matter</td></tr>
+    <tr><td class="num">7</td><td>The ~5-usable-sources ceiling; curate hard, consolidate sources</td></tr>
+    <tr><td class="num">8</td><td>Version drift + ungrounded ON = confident, silent, invalid output</td></tr>
+    <tr><td class="num">9</td><td>Generative orchestration moves off-topic control from topics to instructions</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>And note the review's own bottom line: findings 4 and 5 are linked. Moving
+the method into instructions isn't just correct placement — it's the best hedge
+against ungrounded-ON hallucination, because a procedure that's always in
+context can never fail to be retrieved. The course's core distinction is also
+its best mitigation.</p>
+
+<div class="eyebrow">Field check</div>
+<div class="quiz">
+  <div class="quiz-title">Field check</div>
+  <p class="quiz-sub">Answer from memory before clicking — retrieval is what makes it stick.</p>
+
+  <div class="q">
+    <p class="q-text">1. You follow the README exactly — license confirmed, five files ready — but Copilot Studio refuses to add any uploaded file as knowledge. What was missed?</p>
+    <div class="q-opts">
+      <button type="button">The files are Markdown, which uploads never accept</button>
+      <button type="button" data-correct>Dataverse search is disabled in the target environment</button>
+      <button type="button">The agent already reached its knowledge source quota</button>
+    </div>
+    <div class="q-explain">Finding 1: file upload requires Dataverse search enabled (an admin/environment setting). Markdown is explicitly supported, and five files are nowhere near the quota.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">2. You upload five knowledge files but skip every Description field. The agent answers fine in demos, yet often from the wrong file. Why?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>The orchestrator routes to sources by name and description</button>
+      <button type="button">The files exceed the ceiling so retrieval silently truncates</button>
+      <button type="button">Undescribed sources are excluded from the semantic index entirely</button>
+    </div>
+    <div class="q-explain">Finding 3: under generative orchestration, source selection is driven by name + description. Undescribed sources still get indexed and answer — they just route unreliably.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">3. Your instructions say "ground every fact," but Allow ungrounded responses is ON. You're about to ship. What can now happen silently?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>The model states schema versions from memory instead of knowledge</button>
+      <button type="button">The agent refuses clarifying questions because retrieval is not enforced</button>
+      <button type="button">Knowledge answers get blocked because grounding checks reject every citation</button>
+    </div>
+    <div class="q-explain">Finding 4: with ungrounded ON, nothing enforces retrieval, so stale parametric answers slip through. Clarifying questions break when the toggle is OFF, not ON.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">4. Your agent's step-by-step diagnostic procedure lives in a knowledge file. Mid-conversation, it skips steps of the method. What's the root cause?</p>
+    <div class="q-opts">
+      <button type="button" data-correct>Retrieval is chunked and best-effort, so steps go missing</button>
+      <button type="button">The 8,000-character instruction limit forced the procedure into knowledge</button>
+      <button type="button">Moderation set to High filters procedural content from responses</button>
+    </div>
+    <div class="q-explain">Finding 5: knowledge is chunked RAG — a partial chunk can return three steps of five. The 8,000-character ceiling is declarative-agent-only; Copilot Studio instructions had room for the method all along.</div>
+  </div>
+
+  <div class="q">
+    <p class="q-text">5. You're about to ship a security-troubleshooting agent with moderation set to High. A user pastes an injection-looking transcript for diagnosis. What breaks?</p>
+    <div class="q-opts">
+      <button type="button">The knowledge index quarantines the transcript and stops syncing</button>
+      <button type="button" data-correct>The moderation layer flags the exchange as an attack</button>
+      <button type="button">The orchestrator escalates the conversation to a fallback topic</button>
+    </div>
+    <div class="q-explain">Finding 6: High RAI moderation can trip OpenAIJailBreak / OpenAIndirectAttack on injection-looking content the agent must legitimately discuss. Mitigation: consider Medium, and state in instructions that discussing agent security is expected.</div>
+  </div>
+
+  <div class="quiz-score">Score: <span class="val"></span>
+    <button type="button" class="quiz-retry">Retry</button>
+  </div>
+</div>
+
+<div class="source-rec">
+  <span class="k">Primary source</span>
+  <p>The review's two verified-up-front claims — Markdown is a supported upload
+  type, and Dataverse search is a hard prerequisite — both come from this page,
+  which also makes the per-file Description an explicit upload step.
+  <a href="https://learn.microsoft.com/en-us/microsoft-copilot-studio/knowledge-add-file-upload">Upload
+  files as a knowledge source</a></p>
+</div>
+
+<p class="teacher">Something unclear? Ask your teacher — the agent in this repo
+can explain, drill deeper, or design an extra exercise for any part of this lesson.</p>
+
+<nav class="refbar">
+  <div class="refs">
+    <a href="../reference/glossary.html">Glossary</a>
+    <a href="../reference/limits-cheatsheet.html">Limits cheat-sheet</a>
+    <a href="../reference/decision-flowcharts.html">Decision flowcharts</a>
+  </div>
+  <div class="refs">
+    <a href="0010-retrieval-api-vs-builtin.html">← Prev lesson</a>
+    <a href="0001-knowledge-vs-instructions.html">Restart course ↺</a>
+  </div>
+</nav>
+
+<script>
+// Field check quiz — instant feedback, per-quiz score, retry.
+// Markup contract: .quiz > .q > .q-opts > button[data-correct] + .q-explain
+document.querySelectorAll('.quiz').forEach(function (quiz) {
+  var questions = Array.prototype.slice.call(quiz.querySelectorAll('.q'));
+  var scoreEl = quiz.querySelector('.quiz-score .val');
+  var answered = 0;
+  var correct = 0;
+
+  quiz.addEventListener('click', function (e) {
+    var btn = e.target.closest('.q-opts button');
+    if (btn) {
+      var q = btn.closest('.q');
+      if (q.classList.contains('answered')) return;
+      q.classList.add('answered');
+      answered++;
+      var isRight = btn.hasAttribute('data-correct');
+      if (isRight) correct++;
+      btn.classList.add(isRight ? 'correct' : 'incorrect');
+      q.querySelectorAll('.q-opts button').forEach(function (b) {
+        if (b.hasAttribute('data-correct')) b.classList.add('correct');
+        b.disabled = true;
+      });
+      if (answered === questions.length) {
+        quiz.classList.add('done');
+        if (scoreEl) scoreEl.textContent = correct + ' / ' + questions.length;
+      }
+      return;
+    }
+    if (e.target.closest('.quiz-retry')) {
+      answered = 0;
+      correct = 0;
+      quiz.classList.remove('done');
+      questions.forEach(function (q) {
+        q.classList.remove('answered');
+        q.querySelectorAll('.q-opts button').forEach(function (b) {
+          b.classList.remove('correct', 'incorrect');
+          b.disabled = false;
+        });
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>
